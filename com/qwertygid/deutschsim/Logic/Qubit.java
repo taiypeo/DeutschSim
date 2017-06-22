@@ -32,6 +32,10 @@ public class Qubit {
 	
 	public void set_superposition(FieldVector<Complex> superposition)
 	{
+		if (superposition.getDimension() != 2)
+			throw new IllegalArgumentException(
+					"Provided superposition is not a 2D vector");
+		
 		this.superposition = superposition;
 	}
 	
