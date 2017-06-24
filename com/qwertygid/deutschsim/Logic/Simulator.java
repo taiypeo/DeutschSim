@@ -1,6 +1,7 @@
 package com.qwertygid.deutschsim.Logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Simulator {
 	public Simulator() {
@@ -18,6 +19,49 @@ public class Simulator {
 	}
 	
 	public String simulate() {
+		if (!valid())
+			throw new RuntimeException("Cannot simulate an invalid circuit");
+		else if (is_table_empty())
+			throw new RuntimeException("Cannot simulate an empty circuit");
+
+		ArrayList<MeasuringGate> dot_gates = new ArrayList<MeasuringGate>();
+		
+		for (int col = 0; col < gates.get(0).size(); col++) {
+			// Simulates all Measuring gates in this column & puts Dot gates in an ArrayList
+			for (int row = 0; row < gates.size(); row++) {
+				Gate current = gates.get(row).get(col); 
+				
+				if (current != null && current instanceof MeasuringGate) {
+					current.operate(new ArrayList<>(Arrays.asList(qubits.get(row))));
+					
+					if (current.get_id() == "_ID_DOT")
+						dot_gates.add((MeasuringGate) current);
+				}
+			}
+		
+			// Simulates all non-Measuring gates in this column
+			int row = 0;
+			while (row < gates.size()) {
+				Gate current = gates.get(row).get(col); 
+				
+				if (current != null && !(current instanceof MeasuringGate)) {
+					ArrayList<Qubit> qubits_to_operate_on = new ArrayList<Qubit>();
+					
+					int starting_row = row;
+					
+					for (; row < starting_row + current.get_ports_number(); row++)
+						qubits_to_operate_on.add(qubits.get(row));
+					
+					current.operate(qubits_to_operate_on);
+					
+					if (!dot_gates.isEmpty()) {
+						// Entangle (TODO)
+					}
+				} else
+					row++;
+			}
+		}
+		
 		return "";
 	}
 	
