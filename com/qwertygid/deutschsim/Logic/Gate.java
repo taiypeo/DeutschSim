@@ -1,15 +1,10 @@
 package com.qwertygid.deutschsim.Logic;
 
-import java.util.ArrayList;
-
 public abstract class Gate {
-	public Gate(final String id, final int IO_ports)
-	{
+	public Gate(final String id, final int IO_ports) {
 		this.id = id;
 		this.IO_ports = IO_ports;
 	}
-	
-	public abstract void operate(ArrayList<Qubit> qubits);
 	
 	public String get_id() {
 		return id;

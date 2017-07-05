@@ -1,6 +1,5 @@
 package com.qwertygid.deutschsim.Logic;
 
-import java.util.ArrayList;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 import org.apache.commons.math3.linear.FieldMatrix;
@@ -45,22 +44,28 @@ public class MatrixGate extends Gate {
 		FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
 		
 		mat = x_rot.multiply(y_rot).multiply(z_rot);
+		
+		if (!valid())
+			throw new IllegalArgumentException(
+					"Matrix is not a valid quantum gate in MatrixGate rotation constructor");
 	}
 
-	@Override
-	public void operate(ArrayList<Qubit> qubits) {
-		if (qubits.size() != mat.getColumnDimension() / 2)
-			throw new IllegalArgumentException(
-					"Invalid qubit input length to a matrix gate");
-		
-		for (Qubit q : qubits) {
-			q.set_superposition(mat.operate(q.get_superposition()));
-		}
+	public FieldMatrix<Complex> get_matrix() {
+		return mat;
 	}
 	
 	public boolean valid()
-	{	
-		final double EPSILON = 0.000001;
+	{
+		// Checks if this is a control matrix
+		Complex[][] data = new Complex[][] {
+				{new Complex(1337), new Complex(0)},
+				{new Complex(0), new Complex(1)}
+		};
+		
+		FieldMatrix<Complex> control = new Array2DRowFieldMatrix<Complex>(data);
+		
+		if (mat.equals(control))
+			return true;
 		
 		if (!mat.isSquare() || mat.getColumnDimension() % 2 != 0)
 			return false;
@@ -74,10 +79,9 @@ public class MatrixGate extends Gate {
 		// Checks if dagger * mat = identity matrix
 		FieldMatrix<Complex> result = mat.multiply(dagger);
 		for (int i = 0; i < result.getRowDimension(); i++)
-			for (int j = 0; j < result.getColumnDimension(); j++)
-			{
+			for (int j = 0; j < result.getColumnDimension(); j++) {
 				int delta = (i == j ? 1 : 0);
-				if (result.getEntry(i, j).getReal() - delta >= EPSILON)
+				if (!Tools.equal(result.getEntry(i, j).getReal(), delta))
 					return false;
 			}
 		
