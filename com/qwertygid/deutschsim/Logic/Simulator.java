@@ -59,6 +59,8 @@ public class Simulator {
 						matrix = (MatrixGate) current_gate; 
 					else
 						matrix = matrix.kronecker((MatrixGate) current_gate);
+					
+					row += current_gate.get_ports_number() - 1;
 				} //else if (current_gate instanceof CircuitGate) TODO 
 			}
 			
@@ -82,7 +84,7 @@ public class Simulator {
 				if (gates.get_element(row, col) != null)
 				{
 					// Checks if elements go out of bounds
-					if (gates.get_data().get(row).size() - col < gates.get_element(row, col).get_ports_number())
+					if (gates.get_row_count() - row < gates.get_element(row, col).get_ports_number())
 						return false;
 					
 					// Checks if elements overlap
