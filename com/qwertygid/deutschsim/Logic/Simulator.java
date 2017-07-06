@@ -100,7 +100,7 @@ public class Simulator {
 	
 	private FieldVector<Complex> get_start_state() {
 		FieldVector<Complex> state = new ArrayFieldVector<Complex>(ComplexField.getInstance(), (int) Math.pow(2, qubits.length()));
-		state.setEntry(Integer.parseInt(qubits), new Complex(1));
+		state.setEntry(Integer.parseInt(qubits, 2), new Complex(1));
 		return state;
 	}
 	
