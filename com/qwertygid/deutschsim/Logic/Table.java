@@ -79,7 +79,7 @@ public class Table<T> {
 	}
 	
 	public void add_col(final int index) {
-		if (is_empty())
+		if (table.isEmpty())
 			add_row();
 		
 		if (index < 0 || index > table.get(0).size())
@@ -131,7 +131,7 @@ public class Table<T> {
 		return table;
 	}
 	
-	private boolean is_empty() {
+	public boolean is_empty() {
 		return (table.isEmpty()) || (table.get(0).isEmpty());
 	}
 	
