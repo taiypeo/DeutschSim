@@ -10,14 +10,15 @@ import com.qwertygid.deutschsim.Logic.*;
 public class DeutschSim {
 
 	public static void main(String[] args) {
-		String qubits = "10";
+		String qubits = "100";
 		Table<Gate> gates = new Table<Gate>();
+		gates.add_row();
 		gates.add_row();
 		gates.add_row();
 		gates.add_col();
 		
 		Complex[][] data1 = new Complex[][] {
-				{new Complex(1337), new Complex(0)},
+				{new Complex(Tools.CONTROL_VALUE), new Complex(0)},
 				{new Complex(0), new Complex(1)}
 		};
 		FieldMatrix<Complex> had = new Array2DRowFieldMatrix<Complex>(data1);
@@ -32,6 +33,7 @@ public class DeutschSim {
 		
 		gates.insert_element(control, 0, 0);
 		gates.insert_element(pauli_x, 1, 0);
+		gates.insert_element(pauli_x, 2, 0);
 		
 		Simulator sim = new Simulator(qubits, gates);
 		FieldVector<Complex> state = sim.simulate();

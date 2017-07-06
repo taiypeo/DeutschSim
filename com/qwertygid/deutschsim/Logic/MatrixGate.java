@@ -1,7 +1,6 @@
 package com.qwertygid.deutschsim.Logic;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexField;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 import org.apache.commons.math3.linear.FieldMatrix;
 
@@ -59,7 +58,7 @@ public class MatrixGate extends Gate {
 	{
 		// Checks if this is a control matrix
 		Complex[][] data = new Complex[][] {
-				{new Complex(CONTROL_VALUE), new Complex(0)},
+				{new Complex(Tools.CONTROL_VALUE), new Complex(0)},
 				{new Complex(0), new Complex(1)}
 		};
 		
@@ -88,41 +87,6 @@ public class MatrixGate extends Gate {
 		
 		return true;
 	}
-
-	public MatrixGate kronecker(MatrixGate rhs_gate) {
-		if (!valid())
-			throw new RuntimeException("Matrix is not a valid quantum gate in kronecker()");
-		if (!rhs_gate.valid())
-			throw new IllegalArgumentException("Provided matrix in kronecker() is not a valid quantum gate");
-		
-		FieldMatrix<Complex> rhs = rhs_gate.get_matrix();
-		
-		FieldMatrix<Complex> result_mat = new Array2DRowFieldMatrix<Complex>(ComplexField.getInstance(),
-				mat.getRowDimension() * rhs.getRowDimension(), mat.getColumnDimension() * rhs.getColumnDimension());
-		
-		for (int i = 0; i < mat.getRowDimension(); i++)
-			for (int j = 0; j < mat.getColumnDimension(); j++)
-				for (int k = 0; k < rhs.getRowDimension(); k++)
-					for (int l = 0; l < rhs.getColumnDimension(); l++) {
-						int row = i * rhs.getRowDimension() + k, col = j * rhs.getColumnDimension() + l;
-						
-						// The control value alters Kronecker product's behavior to create controlled gates
-						if (mat.getEntry(i, j).getReal() == CONTROL_VALUE)
-							if (row == col)
-								result_mat.setEntry(row, col, new Complex(1));
-							else
-								result_mat.setEntry(row, col, new Complex(0));
-						else
-							result_mat.setEntry(row, col, mat.getEntry(i, j).multiply(rhs.getEntry(k, l)));
-						
-					}
-						
-		
-		MatrixGate result = new MatrixGate("", result_mat);
-		
-		return result;
-	}
 	
 	private final FieldMatrix<Complex> mat;
-	private static final int CONTROL_VALUE = 1337;
 }

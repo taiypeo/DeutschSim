@@ -4,7 +4,10 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexField;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 import org.apache.commons.math3.linear.ArrayFieldVector;
+import org.apache.commons.math3.linear.FieldMatrix;
+import org.apache.commons.math3.linear.FieldMatrixChangingVisitor;
 import org.apache.commons.math3.linear.FieldVector;
 import org.apache.commons.math3.linear.MatrixUtils;
 
@@ -38,10 +41,10 @@ public class Simulator {
 		
 		FieldVector<Complex> state = get_start_state();
 		
-		MatrixGate identity = new MatrixGate("", MatrixUtils.createFieldIdentityMatrix(ComplexField.getInstance(), 2));
+		FieldMatrix<Complex> identity = MatrixUtils.createFieldIdentityMatrix(ComplexField.getInstance(), 2);
 		
 		for (int col = 0; col < gates.get_col_count(); col++) {
-			MatrixGate matrix = null;
+			FieldMatrix<Complex> matrix = null;
 			
 			for (int row = 0; row < gates.get_row_count(); row++) {
 				Gate current_gate = gates.get_element(row, col);
@@ -50,21 +53,25 @@ public class Simulator {
 					if (matrix == null)
 						matrix = identity;
 					else
-						matrix = matrix.kronecker(identity);
+						matrix = kronecker(matrix, identity);
 				else if (current_gate instanceof MatrixGate) {
 					if (!((MatrixGate) current_gate).valid())
 						throw new RuntimeException("current_gate is not a valid quantum matrix gate");
 					
+					FieldMatrix<Complex> current_matrix = ((MatrixGate) current_gate).get_matrix();
+					
 					if (matrix == null)
-						matrix = (MatrixGate) current_gate; 
+						matrix = current_matrix; 
 					else
-						matrix = matrix.kronecker((MatrixGate) current_gate);
+						matrix = kronecker(matrix, current_matrix);
 					
 					row += current_gate.get_ports_number() - 1;
 				} //else if (current_gate instanceof CircuitGate) TODO 
 			}
 			
-			state = matrix.get_matrix().operate(state);
+			matrix.walkInOptimizedOrder(new MatrixFinalizer());
+			
+			state = matrix.operate(state);
 		}
 		
 		return state;
@@ -104,6 +111,52 @@ public class Simulator {
 		return state;
 	}
 	
+	private static FieldMatrix<Complex> kronecker(FieldMatrix<Complex> lhs, FieldMatrix<Complex> rhs) {				
+		FieldMatrix<Complex> result = new Array2DRowFieldMatrix<Complex>(ComplexField.getInstance(),
+				lhs.getRowDimension() * rhs.getRowDimension(), lhs.getColumnDimension() * rhs.getColumnDimension());
+		
+		for (int i = 0; i < lhs.getRowDimension(); i++)
+			for (int j = 0; j < lhs.getColumnDimension(); j++)
+				for (int k = 0; k < rhs.getRowDimension(); k++)
+					for (int l = 0; l < rhs.getColumnDimension(); l++) {
+						int row = i * rhs.getRowDimension() + k, col = j * rhs.getColumnDimension() + l;
+						
+						// The control value alters Kronecker product's behavior to create controlled gates
+						if (lhs.getEntry(i, j).getReal() == Tools.CONTROL_VALUE)
+							if (row == col)
+								result.setEntry(row, col, new Complex(Tools.CONTROL_VALUE));
+							else
+								result.setEntry(row, col, new Complex(0));
+						else
+							result.setEntry(row, col, lhs.getEntry(i, j).multiply(rhs.getEntry(k, l)));
+						
+					}
+		
+		return result;
+	}
+	
 	private String qubits; // big-endian
 	private Table<Gate> gates;
+}
+
+class MatrixFinalizer implements FieldMatrixChangingVisitor<Complex> {
+
+	@Override
+	public Complex end() {
+		return null;
+	}
+
+	@Override
+	public void start(int rows, int cols, int start_row, int end_row, int start_col, int end_col) {
+		
+	}
+
+	@Override
+	public Complex visit(int row, int col, Complex value) {
+		if (value.equals(new Complex(Tools.CONTROL_VALUE)))
+			return new Complex(1);
+		
+		return value;			
+	}
+	
 }
