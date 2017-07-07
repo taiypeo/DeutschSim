@@ -37,21 +37,24 @@ public class Circuit {
 			return false;
 		
 		for (int row = 0; row < gates.get_row_count(); row++)		
-			for (int col = 0; col < gates.get_col_count(); col++)
-				if (gates.get_element(row, col) != null)
+			for (int col = 0; col < gates.get_col_count(); col++) {
+				Gate current_gate = gates.get_element(row, col);
+				
+				if (current_gate != null)
 				{
-					if (!gates.get_element(row, col).valid())
+					if (!current_gate.valid())
 						return false;
 					
 					// Checks if elements go out of bounds
-					if (gates.get_row_count() - row < gates.get_element(row, col).get_ports_number())
+					if (gates.get_row_count() - row < current_gate.get_ports_number())
 						return false;
 					
 					// Checks if elements overlap
-					for (int i = 1; i < gates.get_element(row, col).get_ports_number(); i++)
+					for (int i = 1; i < current_gate.get_ports_number(); i++)
 						if (gates.get_element(row + i, col) != null)
 							return false;
 				}
+			}
 		
 		return true;
 	}
