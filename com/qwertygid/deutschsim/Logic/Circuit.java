@@ -32,16 +32,17 @@ public class Circuit {
 					"Invalid arguments passed to Circuit constructor");
 	}
 	
-	public boolean valid() {		
-		for (int row = 0; row < gates.get_row_count(); row++)
-		{
-			if (!gates.valid())
-				return false;
-			
+	public boolean valid() {
+		if (!gates.valid())
+			return false;
+		
+		for (int row = 0; row < gates.get_row_count(); row++)		
 			for (int col = 0; col < gates.get_col_count(); col++)
-			{
 				if (gates.get_element(row, col) != null)
 				{
+					if (!gates.get_element(row, col).valid())
+						return false;
+					
 					// Checks if elements go out of bounds
 					if (gates.get_row_count() - row < gates.get_element(row, col).get_ports_number())
 						return false;
@@ -51,8 +52,6 @@ public class Circuit {
 						if (gates.get_element(row + i, col) != null)
 							return false;
 				}
-			}
-		}
 		
 		return true;
 	}
