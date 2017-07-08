@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.FieldMatrixChangingVisitor;
 import org.apache.commons.math3.linear.FieldMatrixPreservingVisitor;
 
 public class Gate {
+	// Rotation constructor
 	public Gate(final String id, double angle_x, double angle_y, double angle_z, final boolean in_degrees)
 	{
 		this.id = id;
@@ -39,11 +40,33 @@ public class Gate {
 		mat = x_rot.multiply(y_rot).multiply(z_rot);
 		
 		if (!valid())
-			throw new IllegalArgumentException(
+			throw new RuntimeException(
 					"Matrix is not a valid quantum gate in Gate rotation constructor");
 	}
 	
-	// TODO phase shift Gate constructor, CircuitGate constructor
+	// Phase shift constructor
+	public Gate(final String id, double angle, final boolean in_degrees) {
+		this.id = id;
+		this.IO_ports = 1;
+		
+		if (in_degrees)
+			angle = Math.toRadians(angle);
+		
+		Complex[][] data = new Complex[][] {
+				{new Complex(1), new Complex(0)},
+				{new Complex(0), new Complex(Math.cos(angle), Math.sin(angle))}
+		};
+		
+		mat = new Array2DRowFieldMatrix<Complex>(data);
+		
+		if (!valid())
+			throw new RuntimeException(
+					"Matrix is not a valid quantum gate in Gate phase shift constructor");
+	}
+	
+	public Gate(final String id, final Table<Gate> gates) {
+		this(id, new Circuit(gates).evaluate_circuit_matrix());
+	}
 	
 	public Gate(final String id, final FieldMatrix<Complex> mat) {
 		this.id = id;
