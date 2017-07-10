@@ -121,7 +121,7 @@ public class Gate {
 	private final String id;
 	private final int IO_ports;
 	
-	private class MatrixConjugator implements FieldMatrixChangingVisitor<Complex> {
+	private static class MatrixConjugator implements FieldMatrixChangingVisitor<Complex> {
 		@Override
 		public Complex end() {
 			return null;
@@ -138,7 +138,7 @@ public class Gate {
 		}
 	}
 	
-	private class UnitaryChecker implements FieldMatrixPreservingVisitor<Complex> {
+	private static class UnitaryChecker implements FieldMatrixPreservingVisitor<Complex> {
 		public UnitaryChecker() {
 			return_value = new Complex(1);
 		}

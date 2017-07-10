@@ -144,7 +144,7 @@ public class Circuit {
 	
 	private Table<Gate> gates;
 	
-	private class ColumnMatrixFinalizer implements FieldMatrixChangingVisitor<Complex> {
+	private static class ColumnMatrixFinalizer implements FieldMatrixChangingVisitor<Complex> {
 		@Override
 		public Complex end() {
 			return null;
