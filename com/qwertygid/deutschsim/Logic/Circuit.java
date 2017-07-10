@@ -108,8 +108,12 @@ public class Circuit {
 		return evaluate_circuit_matrix().operate(get_start_state(qubits));
 	}
 	
-	private boolean valid_qubit_sequence(final String qubits) {		
+	public boolean valid_qubit_sequence(final String qubits) {		
 		return qubits.matches("[01]+") && (qubits.length() == gates.get_row_count());
+	}
+	
+	public Table<Gate> get_gates_table() {
+		return gates;
 	}
 	
 	private FieldVector<Complex> get_start_state(final String qubits) {
