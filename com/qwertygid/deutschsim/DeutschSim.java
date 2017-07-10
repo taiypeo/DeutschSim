@@ -1,10 +1,13 @@
 package com.qwertygid.deutschsim;
 
+import java.io.IOException;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 import org.apache.commons.math3.linear.FieldMatrix;
 import org.apache.commons.math3.linear.FieldVector;
 
+import com.qwertygid.deutschsim.IO.*;
 import com.qwertygid.deutschsim.Logic.*;
 
 public class DeutschSim {
@@ -47,6 +50,14 @@ public class DeutschSim {
 		Circuit sim = new Circuit(gates);
 		FieldVector<Complex> state = sim.operate(qubits);
 		System.out.println(state.toString());
+		
+		Serializer s = new Serializer(qubits, sim);
+		try {
+			s.serialize("state.json");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

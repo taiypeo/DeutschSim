@@ -166,7 +166,6 @@ public class Circuit {
 			
 			return value;			
 		}
-		
 	}
 }
 
