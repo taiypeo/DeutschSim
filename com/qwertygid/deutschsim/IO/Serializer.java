@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+
 import com.qwertygid.deutschsim.Logic.Circuit;
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.Table;
@@ -115,8 +116,6 @@ public class Serializer {
 				src.walkInRowOrder(new MatrixSerializingWalker(arr));
 				
 				JsonObject obj = new JsonObject();
-				obj.addProperty("rows", src.getRowDimension());
-				obj.addProperty("cols", src.getColumnDimension());
 				obj.add("data", arr);
 				
 				return obj;
@@ -130,11 +129,16 @@ public class Serializer {
 			public FieldMatrix<Complex> deserialize(JsonElement json,
 					Type type, JsonDeserializationContext context)
 					throws JsonParseException {
-				JsonObject obj = json.getAsJsonObject();
+				JsonArray json_mat = json.getAsJsonObject().get("data").getAsJsonArray();
+				
+				if (!valid_json_matrix(json_mat))
+					throw new JsonParseException("Matrix data in the provided JSON file is corrupted");
+				
+				final int rows = json_mat.size(), cols = json_mat.get(0).getAsJsonArray().size();
 				
 				FieldMatrix<Complex> mat = new Array2DRowFieldMatrix<Complex>(ComplexField.getInstance(),
-						obj.get("rows").getAsInt(), obj.get("cols").getAsInt());
-				mat.walkInRowOrder(new MatrixDeserializingWalker(obj));
+						rows, cols);
+				mat.walkInRowOrder(new MatrixDeserializingWalker(json_mat));
 				
 				return mat;
 			}
@@ -143,6 +147,18 @@ public class Serializer {
 		builder.registerTypeAdapter(FieldMatrix.class, matrix_deserializer);
 		
 		gson = builder.create();
+	}
+	
+	private boolean valid_json_matrix(final JsonArray mat) {
+		if (mat.size() == 0)
+			return false;
+		
+		int row_length = mat.get(0).getAsJsonArray().size();
+		for (int row = 1; row < mat.size(); row++)
+			if (mat.get(row).getAsJsonArray().size() != row_length)
+				return false;
+		
+		return true;
 	}
 	
 	private String qubits;
@@ -188,9 +204,9 @@ public class Serializer {
 	}
 	
 	private static class MatrixDeserializingWalker implements FieldMatrixChangingVisitor<Complex> {
-		public MatrixDeserializingWalker(JsonObject obj) {
+		public MatrixDeserializingWalker(JsonArray data) {
+			this.data = data;
 			last_row = 0;
-			data = obj.get("data").getAsJsonArray();
 			row_arr = data.get(0).getAsJsonArray();
 		}
 		
