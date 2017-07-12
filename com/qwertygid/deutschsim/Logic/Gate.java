@@ -155,11 +155,12 @@ public class Gate {
 
 		@Override
 		public void visit(int row, int col, Complex value) {
+			if (return_value.equals(new Complex(0)))
+				return;
+			
 			int delta = (row == col ? 1 : 0);
-			if (!Tools.equal(value.getReal(), delta)) {
+			if (!Tools.equal(value.getReal(), delta))
 				return_value = new Complex(0);
-				end();
-			}
 		}
 		
 		private Complex return_value;
