@@ -72,7 +72,7 @@ public class Serializer {
 		
 		Serializer s = gson.fromJson(json.toString(), Serializer.class);
 		if (!s.valid())
-			throw new IllegalArgumentException("Loaded circuit is corrupted");
+			throw new IOException("Loaded circuit is corrupted");
 		
 		qubits = s.qubits;
 		circuit = s.circuit;
@@ -124,7 +124,6 @@ public class Serializer {
 		builder.registerTypeAdapter(FieldMatrix.class, matrix_serializer);
 		
 		JsonDeserializer<FieldMatrix<Complex>> matrix_deserializer = new JsonDeserializer<FieldMatrix<Complex>>() {
-
 			@Override
 			public FieldMatrix<Complex> deserialize(JsonElement json,
 					Type type, JsonDeserializationContext context)
