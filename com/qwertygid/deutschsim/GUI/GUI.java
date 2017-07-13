@@ -14,6 +14,10 @@ import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.AbstractListModel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -22,8 +26,7 @@ import javax.swing.JMenuItem;
 public class GUI {
 
 	private JFrame frame;
-	private JTable initial_state_table;
-	private JTable gate_table;
+	private GUITable initial_state_table, gate_table;
 	
 	public GUI() {
 		initialize();
@@ -54,11 +57,9 @@ public class GUI {
 		child_split_pane.setLeftComponent(quantum_system_scroll_pane);
 		
 		JPanel quantum_system_panel = new JPanel();
-		quantum_system_panel.setLayout(new BoxLayout(quantum_system_panel, BoxLayout.X_AXIS));
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new JTable();
-		quantum_system_panel.add(initial_state_table);
+		initial_state_table = new GUITable();
 		initial_state_table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null},
@@ -69,8 +70,12 @@ public class GUI {
 				"New column"
 			}
 		));
+		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
+		gbc_initial_state_table.gridx = 0;
+		gbc_initial_state_table.gridy = 0;
+		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
 		
-		gate_table = new JTable();
+		gate_table = new GUITable();
 		gate_table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null, null, null},
@@ -81,7 +86,17 @@ public class GUI {
 				"New column", "New column", "New column", "New column"
 			}
 		));
-		quantum_system_panel.add(gate_table);
+		GridBagConstraints gbc_gate_table = new GridBagConstraints();
+		gbc_gate_table.gridx = 1;
+		gbc_gate_table.gridy = 0;
+		quantum_system_panel.add(gate_table, gbc_gate_table);
+		
+		GridBagLayout gbl_quantum_system_panel = new GridBagLayout();
+		gbl_quantum_system_panel.columnWidths = new int[]{initial_state_table.getWidth(), gate_table.getWidth(), 0};
+		gbl_quantum_system_panel.rowHeights = new int[]{initial_state_table.getHeight(), 0, 0};
+		gbl_quantum_system_panel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_quantum_system_panel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		quantum_system_panel.setLayout(gbl_quantum_system_panel);
 		
 		JScrollPane result_scroll_pane = new JScrollPane();
 		child_split_pane.setRightComponent(result_scroll_pane);
