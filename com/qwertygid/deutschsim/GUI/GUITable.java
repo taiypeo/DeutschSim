@@ -16,4 +16,9 @@ public class GUITable extends JTable{
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setTableHeader(null);
 	}
+	
+	public void setColumnPreferredWidth(final int width) {
+		for (int col = 0; col < getColumnCount(); col++)
+			columnModel.getColumn(col).setPreferredWidth(width);
+	}
 }
