@@ -83,6 +83,7 @@ public class GUI {
 				""
 			}
 		));
+		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		initial_state_table.setRowHeight(gate_table_cell_size);
 		initial_state_table.setColumnPreferredWidth(initial_state_table_column_width);
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
@@ -157,7 +158,7 @@ public class GUI {
 		list.setFixedCellHeight(gate_table_cell_size + 10);
 		list.setFixedCellWidth(gate_table_cell_size + 10);
 		list.setCellRenderer(new GateListCellRenderer());
-		list.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		list.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		list_scroll_pane.setViewportView(list);
 		
 		JMenuBar menu_bar = new JMenuBar();
@@ -211,7 +212,7 @@ public class GUI {
 		frame.setVisible(true);
 	}
 	
-	private final int gate_table_cell_size = 43, initial_state_table_column_width = 20;
+	private final int gate_table_cell_size = 43, initial_state_table_column_width = 25;
 	private final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8; 
 	
 	private class GateListCellRenderer extends DefaultListCellRenderer {
