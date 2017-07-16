@@ -1,6 +1,7 @@
 package com.qwertygid.deutschsim.GUI;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
@@ -8,18 +9,25 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextPane;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 import javax.swing.AbstractListModel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Font;
 
 public class GUI {
 
@@ -44,11 +52,11 @@ public class GUI {
 		}
 		
 		JSplitPane main_split_pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		main_split_pane.setResizeWeight(0.95);
+		main_split_pane.setResizeWeight(main_split_pane_resize_weight);
 		frame.getContentPane().add(main_split_pane);
 		
 		JSplitPane child_split_pane = new JSplitPane();
-		child_split_pane.setResizeWeight(0.8);
+		child_split_pane.setResizeWeight(child_split_pane_resize_weight);
 		main_split_pane.setLeftComponent(child_split_pane);
 		
 		JScrollPane quantum_system_scroll_pane = new JScrollPane();
@@ -57,20 +65,21 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		final int gate_table_size = 43, initial_state_table_column_width = 20;
-		
 		initial_state_table = new GUITable();
 		initial_state_table.setModel(new DefaultTableModel(
 			new Object[][] {
-				{null},
-				{null},
-				{null},
+				{"|0>"},
+				{"|0>"},
+				{"|0>"},
+				{"|0>"},
+				{"|0>"},
+				{"|0>"},
 			},
 			new String[] {
 				""
 			}
 		));
-		initial_state_table.setRowHeight(gate_table_size);
+		initial_state_table.setRowHeight(gate_table_cell_size);
 		initial_state_table.setColumnPreferredWidth(initial_state_table_column_width);
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
 		gbc_initial_state_table.gridx = 0;
@@ -80,16 +89,20 @@ public class GUI {
 		gate_table = new GUITable();
 		gate_table.setModel(new DefaultTableModel(
 			new Object[][] {
-				{null, null, null, null},
-				{null, null, null, null},
-				{null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
 			},
 			new String[] {
-				"", "", "", ""
+				"", "", "", "", "", ""
 			}
 		));
-		gate_table.setRowHeight(gate_table_size);
-		gate_table.setColumnPreferredWidth(gate_table_size);
+		gate_table.setRowHeight(gate_table_cell_size);
+		gate_table.setColumnPreferredWidth(gate_table_cell_size);
+		gate_table.setDefaultRenderer(Object.class, new GateTableCellRenderer());
 		GridBagConstraints gbc_gate_table = new GridBagConstraints();
 		gbc_gate_table.gridx = 1;
 		gbc_gate_table.gridy = 0;
@@ -125,20 +138,26 @@ public class GUI {
 		JScrollPane list_scroll_pane = new JScrollPane();
 		main_split_pane.setRightComponent(list_scroll_pane);
 		
-		JList list = new JList();
-		list.setDragEnabled(true);
-		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		list.setModel(new AbstractListModel() {
+		JList<String> list = new JList<String>();
+		list.setModel(new AbstractListModel<String>() {
+			private static final long serialVersionUID = -2292426828500045887L;
+			
 			String[] values = new String[] {"X", "Y", "Z", "H", "R2"};
 			public int getSize() {
 				return values.length;
 			}
-			public Object getElementAt(int index) {
+			public String getElementAt(int index) {
 				return values[index];
 			}
 		});
+		list.setDragEnabled(true);
+		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setVisibleRowCount(-1);
+		list.setVisibleRowCount(0);
+		list.setFixedCellHeight(gate_table_cell_size + 10);
+		list.setFixedCellWidth(gate_table_cell_size + 10);
+		list.setCellRenderer(new GateListCellRenderer());
+		list.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		list_scroll_pane.setViewportView(list);
 		
 		JMenuBar menu_bar = new JMenuBar();
@@ -191,5 +210,29 @@ public class GUI {
 		
 		frame.setVisible(true);
 	}
+	
+	private final int gate_table_cell_size = 43, initial_state_table_column_width = 20;
+	private final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8; 
+	
+	private class GateListCellRenderer extends DefaultListCellRenderer {
+		private static final long serialVersionUID = 6442140178911177597L;
+		
+		public GateListCellRenderer() {
+			super.setHorizontalAlignment(SwingConstants.CENTER);
+		}
 
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
+				boolean cell_has_focus) {
+			JComponent component = (JComponent) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
+			component.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
+			component.setBorder(new LineBorder(Color.BLACK));
+			
+			JPanel panel = new JPanel();
+			panel.setBackground(Color.WHITE);
+			panel.add(component);
+			
+			return panel;
+		}
+	}
 }
