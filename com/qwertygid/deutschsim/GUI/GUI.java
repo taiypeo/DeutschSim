@@ -2,7 +2,9 @@ package com.qwertygid.deutschsim.GUI;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
@@ -17,7 +19,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
-import javax.swing.AbstractListModel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -28,6 +29,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Font;
+
+import com.qwertygid.deutschsim.Logic.Gate;
+import com.qwertygid.deutschsim.Logic.StandardGateCreator;
 
 public class GUI {
 
@@ -138,18 +142,14 @@ public class GUI {
 		JScrollPane list_scroll_pane = new JScrollPane();
 		main_split_pane.setRightComponent(list_scroll_pane);
 		
-		JList<String> list = new JList<String>();
-		list.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = -2292426828500045887L;
-			
-			String[] values = new String[] {"X", "Y", "Z", "H", "R2"};
-			public int getSize() {
-				return values.length;
-			}
-			public String getElementAt(int index) {
-				return values[index];
-			}
-		});
+		DefaultListModel<Gate> list_model = new DefaultListModel<Gate>();
+		list_model.addElement(StandardGateCreator.create_pauli_x());
+		list_model.addElement(StandardGateCreator.create_pauli_y());
+		list_model.addElement(StandardGateCreator.create_pauli_z());
+		list_model.addElement(StandardGateCreator.create_hadamard());
+		list_model.addElement(StandardGateCreator.create_control());
+		
+		JList<Gate> list = new JList<Gate>(list_model);
 		list.setDragEnabled(true);
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -224,7 +224,8 @@ public class GUI {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
 				boolean cell_has_focus) {
-			JComponent component = (JComponent) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
+			JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
+			component.setText(((Gate) value).get_id());
 			component.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
 			component.setBorder(new LineBorder(Color.BLACK));
 			
