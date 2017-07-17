@@ -3,6 +3,7 @@ package com.qwertygid.deutschsim.GUI;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
@@ -11,7 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextPane;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -32,6 +32,7 @@ import java.awt.Font;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
+import com.qwertygid.deutschsim.Logic.Tools;
 
 public class GUI {
 
@@ -47,6 +48,7 @@ public class GUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(frame);
@@ -213,7 +215,9 @@ public class GUI {
 	}
 	
 	private final int gate_table_cell_size = 43, initial_state_table_column_width = 25;
-	private final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8; 
+	private final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
+	
+	private final String dot_image_path = "/img/dot.png";
 	
 	private class GateListCellRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 6442140178911177597L;
@@ -226,7 +230,13 @@ public class GUI {
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
 				boolean cell_has_focus) {
 			JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
-			component.setText(((Gate) value).get_id());
+			
+			String text = ((Gate) value).get_id();
+			if (text == Tools.CONTROL_ID) {
+				component.setIcon(new ImageIcon(getClass().getResource(dot_image_path)));
+				component.setText("");
+			} else
+				component.setText(text);
 			component.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
 			component.setBorder(new LineBorder(Color.BLACK));
 			

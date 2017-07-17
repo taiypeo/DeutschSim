@@ -49,6 +49,6 @@ public class StandardGateCreator {
 			{new Complex(0), new Complex(1)}
 		};
 		
-		return new Gate("_ID_CONTROL", new Array2DRowFieldMatrix<Complex>(data));
+		return new Gate(Tools.CONTROL_ID, new Array2DRowFieldMatrix<Complex>(data));
 	}
 }
