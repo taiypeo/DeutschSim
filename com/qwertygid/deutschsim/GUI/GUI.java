@@ -214,12 +214,12 @@ public class GUI {
 		frame.setVisible(true);
 	}
 	
-	private final int gate_table_cell_size = 43, initial_state_table_column_width = 25;
-	private final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
+	private static final int gate_table_cell_size = 43, initial_state_table_column_width = 25;
+	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
 	
-	private final String dot_image_path = "/img/dot.png";
+	private static final String dot_image_path = "/img/dot.png";
 	
-	private class GateListCellRenderer extends DefaultListCellRenderer {
+	private static class GateListCellRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 6442140178911177597L;
 		
 		public GateListCellRenderer() {
@@ -232,7 +232,7 @@ public class GUI {
 			JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
 			
 			String text = ((Gate) value).get_id();
-			if (text == Tools.CONTROL_ID) {
+			if (text.equals(Tools.CONTROL_ID)) {
 				component.setIcon(new ImageIcon(getClass().getResource(dot_image_path)));
 				component.setText("");
 			} else
