@@ -72,7 +72,14 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new JTable();
+		initial_state_table = new JTable() {
+			private static final long serialVersionUID = 1127708984190699322L;
+
+			@Override
+			public boolean isCellEditable(int row, int col) {
+				return false;
+			}
+		};
 		initial_state_table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"|0>"},
