@@ -17,9 +17,11 @@ import com.qwertygid.deutschsim.Logic.Table;
 public class GateTable extends JPanel implements MouseInputListener{
 	private static final long serialVersionUID = 3779004937588318481L;
 	
-	public GateTable(final int gate_table_cell_size) {
+	public GateTable(final int gate_table_cell_size, final int gate_table_row_height) {
 		table = new Table<Gate>();		
 		this.gate_table_cell_size = gate_table_cell_size;
+		this.gate_table_row_height = gate_table_row_height;
+		this.gate_table_col_width = gate_table_cell_size + 2;
 		
 		setBackground(Color.WHITE);
 		addMouseListener(this);
@@ -28,8 +30,8 @@ public class GateTable extends JPanel implements MouseInputListener{
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		final int canvas_width = table.get_col_count() * gate_table_cell_size,
-				canvas_height = table.get_row_count() * gate_table_cell_size;
+		final int canvas_width = table.get_col_count() * gate_table_col_width,
+				canvas_height = table.get_row_count() * gate_table_row_height;
 		
 		setPreferredSize(new Dimension(canvas_width, canvas_height));
 		super.paintComponent(g);
@@ -38,18 +40,22 @@ public class GateTable extends JPanel implements MouseInputListener{
 		g2d.setColor(Color.BLACK);
 		g2d.setStroke(new BasicStroke(2));
 		
-		for (int y = gate_table_cell_size / 2; y < canvas_height; y += gate_table_cell_size) {
+		for (int y = gate_table_row_height / 2; y < canvas_height; y += gate_table_row_height) {
 			g2d.drawLine(0, y, canvas_width, y);
 		}
 		
 		if (last_mouse_point != null) {
-			Color transparent = new Color(255, 0, 0, 255 / 2);
-			g2d.setColor(transparent);
 			g2d.setStroke(new BasicStroke(1));
 			
-			final int col = last_mouse_point.x / gate_table_cell_size, row = last_mouse_point.y / gate_table_cell_size;
+			final int x = last_mouse_point.x - last_mouse_point.x % gate_table_col_width,
+					y = last_mouse_point.y - last_mouse_point.y % gate_table_row_height;
 			
-			g2d.drawRect(col * gate_table_cell_size, row * gate_table_cell_size, gate_table_cell_size, gate_table_cell_size);
+			Color inner_transparent = new Color(255, 0, 0, 255 / 4);
+			g2d.setColor(inner_transparent);
+			g2d.fillRect(x, y, gate_table_cell_size, gate_table_cell_size);
+			
+			g2d.setColor(Color.RED);
+			g2d.drawRect(x, y, gate_table_cell_size, gate_table_cell_size);
 		}
 	}
 	
@@ -66,6 +72,7 @@ public class GateTable extends JPanel implements MouseInputListener{
 	@Override
 	public void mouseExited(MouseEvent ev) {
 		last_mouse_point = null;
+		repaint();
 	}
 
 	@Override
@@ -80,20 +87,24 @@ public class GateTable extends JPanel implements MouseInputListener{
 	
 	@Override
 	public void mouseDragged(MouseEvent ev) {
-		
+		mouse_move_action(ev.getPoint());
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent ev) {
-		last_mouse_point = ev.getPoint();
-		repaint();
+		mouse_move_action(ev.getPoint());
 	}
 	
 	public Table<Gate> get_table() {
 		return table;
 	}
 	
+	private void mouse_move_action(final Point point) {
+		last_mouse_point = point;
+		repaint();
+	}
+	
 	private Table<Gate> table;
-	private final int gate_table_cell_size;
+	private final int gate_table_cell_size, gate_table_row_height, gate_table_col_width;
 	private Point last_mouse_point;
 }

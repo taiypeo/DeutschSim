@@ -94,7 +94,8 @@ public class GUI {
 			}
 		));
 		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		initial_state_table.setRowHeight(gate_table_cell_size);
+		initial_state_table.setRowHeight(gate_table_row_height);
+		initial_state_table.setFocusable(false);
 		initial_state_table.setRowSelectionAllowed(false);
 		initial_state_table.setShowGrid(false);
 		initial_state_table.setIntercellSpacing(new Dimension(0, 0));
@@ -108,7 +109,7 @@ public class GUI {
 		gbc_initial_state_table.gridy = 0;
 		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
 		
-		GateTable gate_table = new GateTable(gate_table_cell_size);
+		GateTable gate_table = new GateTable(gate_table_cell_size, gate_table_row_height);
 		for (int i = 0; i < 6; i++)
 			gate_table.get_table().add_row();
 		for (int i = 0; i < 4; i++)
@@ -217,7 +218,7 @@ public class GUI {
 		frame.setVisible(true);
 	}
 	
-	private static final int gate_table_cell_size = 43, initial_state_table_column_width = 25;
+	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 1, initial_state_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
 	
 	private static final String dot_image_path = "/img/dot.png";
