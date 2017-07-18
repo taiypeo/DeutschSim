@@ -7,6 +7,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
@@ -37,7 +38,7 @@ import com.qwertygid.deutschsim.Logic.Tools;
 public class GUI {
 
 	private JFrame frame;
-	private GUITable initial_state_table, gate_table;
+	private JTable initial_state_table;
 	
 	public GUI() {
 		initialize();
@@ -71,7 +72,7 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new GUITable();
+		initial_state_table = new JTable();
 		initial_state_table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"|0>"},
@@ -87,29 +88,24 @@ public class GUI {
 		));
 		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		initial_state_table.setRowHeight(gate_table_cell_size);
-		initial_state_table.setColumnPreferredWidth(initial_state_table_column_width);
+		initial_state_table.setRowSelectionAllowed(false);
+		initial_state_table.setShowGrid(false);
+		initial_state_table.setIntercellSpacing(new Dimension(0, 0));
+		initial_state_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		initial_state_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		initial_state_table.setTableHeader(null);
+		for (int col = 0; col < initial_state_table.getColumnCount(); col++)
+			initial_state_table.getColumnModel().getColumn(col).setPreferredWidth(initial_state_table_column_width);
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
 		gbc_initial_state_table.gridx = 0;
 		gbc_initial_state_table.gridy = 0;
 		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
 		
-		gate_table = new GUITable();
-		gate_table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-			},
-			new String[] {
-				"", "", "", "", "", ""
-			}
-		));
-		gate_table.setRowHeight(gate_table_cell_size);
-		gate_table.setColumnPreferredWidth(gate_table_cell_size);
-		gate_table.setDefaultRenderer(Object.class, new GateTableCellRenderer());
+		GateTable gate_table = new GateTable(gate_table_cell_size);
+		for (int i = 0; i < 6; i++)
+			gate_table.get_table().add_row();
+		for (int i = 0; i < 4; i++)
+			gate_table.get_table().add_col();
 		GridBagConstraints gbc_gate_table = new GridBagConstraints();
 		gbc_gate_table.gridx = 1;
 		gbc_gate_table.gridy = 0;
