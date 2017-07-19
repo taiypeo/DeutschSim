@@ -14,7 +14,7 @@ import javax.swing.event.MouseInputListener;
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.Table;
 
-public class GateTable extends JPanel implements MouseInputListener{
+public class GateTable extends JPanel{
 	private static final long serialVersionUID = 3779004937588318481L;
 	
 	public GateTable(final int gate_table_cell_size, final int gate_table_row_height) {
@@ -24,8 +24,10 @@ public class GateTable extends JPanel implements MouseInputListener{
 		this.gate_table_col_width = gate_table_cell_size + 1;
 		
 		setBackground(Color.WHITE);
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		
+		handler = new MouseHandler(this);
+		addMouseListener(handler);
+		addMouseMotionListener(handler);
 	}
 	
 	@Override
@@ -44,11 +46,11 @@ public class GateTable extends JPanel implements MouseInputListener{
 			g2d.drawLine(0, y, canvas_width, y);
 		}
 		
-		if (last_mouse_point != null) {
+		if (handler.get_last_mouse_point() != null) {
 			g2d.setStroke(new BasicStroke(1));
 			
-			final int x = last_mouse_point.x - last_mouse_point.x % gate_table_col_width,
-					y = last_mouse_point.y - last_mouse_point.y % gate_table_row_height;
+			final int x = handler.get_last_mouse_point().x - handler.get_last_mouse_point().x % gate_table_col_width,
+					y = handler.get_last_mouse_point().y - handler.get_last_mouse_point().y % gate_table_row_height;
 			
 			Color inner_transparent = new Color(255, 0, 0, 255 / 4);
 			g2d.setColor(inner_transparent);
@@ -59,52 +61,68 @@ public class GateTable extends JPanel implements MouseInputListener{
 		}
 	}
 	
-	@Override
-	public void mouseClicked(MouseEvent ev) {
-		// Check for right-click on an element
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent ev) {
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent ev) {
-		last_mouse_point = null;
-		repaint();
-	}
-
-	@Override
-	public void mousePressed(MouseEvent ev) {
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent ev) {
-		
-	}
-	
-	@Override
-	public void mouseDragged(MouseEvent ev) {
-		mouse_move_action(ev.getPoint());
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent ev) {
-		mouse_move_action(ev.getPoint());
-	}
-	
 	public Table<Gate> get_table() {
 		return table;
 	}
 	
-	private void mouse_move_action(final Point point) {
-		last_mouse_point = point;
-		repaint();
-	}
-	
 	private Table<Gate> table;
 	private final int gate_table_cell_size, gate_table_row_height, gate_table_col_width;
-	private Point last_mouse_point;
+	
+	private MouseHandler handler;
+	
+	private static class MouseHandler implements MouseInputListener {
+		public MouseHandler(final GateTable table) {
+			this.table = table;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent ev) {
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent ev) {
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent ev) {
+			last_mouse_point = null;
+			table.repaint();
+		}
+
+		@Override
+		public void mousePressed(MouseEvent ev) {
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent ev) {
+			
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent ev) {
+			mouse_move_action(ev.getPoint());
+			
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent ev) {
+			mouse_move_action(ev.getPoint());
+			
+		}
+		
+		public Point get_last_mouse_point() {
+			return last_mouse_point;
+		}
+		
+		private void mouse_move_action(final Point point) {
+			last_mouse_point = point;
+			table.repaint();
+		}
+		
+		private Point last_mouse_point;
+		private final GateTable table;
+	}
 }
