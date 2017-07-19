@@ -46,6 +46,18 @@ public class GateTable extends JPanel{
 			g2d.drawLine(0, y, canvas_width, y);
 		}
 		
+		for (int row = 0; row < table.get_row_count(); row++)
+			for (int col = 0; col < table.get_col_count(); col++) {
+				Gate gate = table.get_element(row, col);
+				if (gate != null) {
+					final int x = gate_table_col_width * col, y = gate_table_row_height * row;
+					
+					g2d.setColor(Color.BLACK);
+					g2d.setStroke(new BasicStroke(1));
+					g2d.drawRect(x, y, gate_table_cell_size, gate_table_cell_size);
+				}
+			}
+		
 		if (handler.get_last_mouse_point() != null) {
 			g2d.setStroke(new BasicStroke(1));
 			
@@ -63,6 +75,14 @@ public class GateTable extends JPanel{
 	
 	public Table<Gate> get_table() {
 		return table;
+	}
+	
+	public int get_gate_table_row_height() {
+		return gate_table_row_height;
+	}
+	
+	public int get_gate_table_col_width() {
+		return gate_table_col_width;
 	}
 	
 	private Table<Gate> table;

@@ -13,11 +13,13 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextPane;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.JMenuBar;
@@ -29,6 +31,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.io.IOException;
 import java.awt.Font;
 
 import com.qwertygid.deutschsim.Logic.Gate;
@@ -110,6 +117,7 @@ public class GUI {
 		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
 		
 		GateTable gate_table = new GateTable(gate_table_cell_size, gate_table_row_height);
+		gate_table.setTransferHandler(new GateTableTransferHandler(frame, gate_table));
 		for (int i = 0; i < 6; i++)
 			gate_table.get_table().add_row();
 		for (int i = 0; i < 4; i++)
@@ -157,6 +165,7 @@ public class GUI {
 		list_model.addElement(StandardGateCreator.create_control());
 		
 		JList<Gate> list = new JList<Gate>(list_model);
+		list.setTransferHandler(new GateListTransferHandler());
 		list.setDragEnabled(true);
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -233,6 +242,8 @@ public class GUI {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
 				boolean cell_has_focus) {
+			// TODO add checks for casts
+			
 			JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
 			
 			String text = ((Gate) value).get_id();
@@ -250,5 +261,71 @@ public class GUI {
 			
 			return panel;
 		}
+	}
+	
+	private static class GateListTransferHandler extends TransferHandler {
+		private static final long serialVersionUID = 3774691117252660958L;
+
+		@Override
+		public int getSourceActions(JComponent component) {			
+			return DnDConstants.ACTION_COPY;
+		}
+		
+		@Override
+		public Transferable createTransferable(JComponent component) {
+			if (component instanceof JList) {
+				JList<?> list = (JList<?>) component;
+				Object value = list.getSelectedValue();
+				
+				if (value instanceof Gate) {
+					Gate gate = (Gate) value;
+					return new GateTransferable(gate);
+				}
+			}
+			
+			return null;
+		}
+	}
+	
+	private static class GateTableTransferHandler extends TransferHandler {
+		private static final long serialVersionUID = 1978163502085092717L;
+		
+		public GateTableTransferHandler(final JFrame frame, final GateTable table) {
+			this.frame = frame;
+			this.table = table;
+		}
+		
+		@Override
+		public boolean canImport(TransferSupport support) {
+			return support.isDataFlavorSupported(GateTransferable.GATE_DATA_FLAVOR);
+		}
+		
+		@Override
+		public boolean importData(TransferSupport support) {
+			if (canImport(support)) {
+				try {
+					Transferable transferable = support.getTransferable();
+					Object value = transferable.getTransferData(GateTransferable.GATE_DATA_FLAVOR);
+					
+					if (value instanceof Gate) {
+						Gate gate = (Gate) value;
+						Point drop_location = support.getDropLocation().getDropPoint();
+						final int row = drop_location.y / table.get_gate_table_row_height(),
+								col = drop_location.x / table.get_gate_table_col_width();
+						
+						table.get_table().insert_element(gate, row, col);
+						table.repaint();
+					}
+				} catch (UnsupportedFlavorException | IOException | NullPointerException ex) {
+					JOptionPane.showMessageDialog(frame, "Failed to import data into the gate table",
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+			return false;
+		}
+		
+		private final JFrame frame;
+		private final GateTable table;
 	}
 }
