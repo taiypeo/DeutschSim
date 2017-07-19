@@ -42,17 +42,9 @@ import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
 import com.qwertygid.deutschsim.Logic.Tools;
 
-public class GUI {
-
-	private JFrame frame;
-	private JTable initial_state_table;
-	
+public class GUI {	
 	public GUI() {
-		initialize();
-	}
-
-	private void initialize() {
-		frame = new JFrame("DeutschSim");
+		JFrame frame = new JFrame("DeutschSim");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -79,7 +71,7 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new JTable() {
+		JTable initial_state_table = new JTable() {
 			private static final long serialVersionUID = 1127708984190699322L;
 
 			@Override

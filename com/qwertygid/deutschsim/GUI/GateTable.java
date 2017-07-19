@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 
 import com.qwertygid.deutschsim.Logic.Gate;
@@ -97,7 +98,13 @@ public class GateTable extends JPanel{
 		
 		@Override
 		public void mouseClicked(MouseEvent ev) {
-			
+			if (SwingUtilities.isRightMouseButton(ev)) {
+				final int row = last_mouse_point.y / table.get_gate_table_row_height(),
+						col = last_mouse_point.x / table.get_gate_table_col_width();
+				
+				if (table.get_table().get_element(row, col) != null)
+					table.get_table().remove_element(row, col);
+			}
 		}
 
 		@Override
