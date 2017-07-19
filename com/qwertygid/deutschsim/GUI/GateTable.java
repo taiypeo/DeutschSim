@@ -21,7 +21,7 @@ public class GateTable extends JPanel implements MouseInputListener{
 		table = new Table<Gate>();		
 		this.gate_table_cell_size = gate_table_cell_size;
 		this.gate_table_row_height = gate_table_row_height;
-		this.gate_table_col_width = gate_table_cell_size + 2;
+		this.gate_table_col_width = gate_table_cell_size + 1;
 		
 		setBackground(Color.WHITE);
 		addMouseListener(this);
