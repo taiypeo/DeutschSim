@@ -86,10 +86,10 @@ public class GateTable extends JPanel{
 		return gate_table_col_width;
 	}
 	
-	private Table<Gate> table;
+	private final Table<Gate> table;
 	private final int gate_table_cell_size, gate_table_row_height, gate_table_col_width;
 	
-	private MouseHandler handler;
+	private final MouseHandler handler;
 	
 	private static class MouseHandler implements MouseInputListener {
 		public MouseHandler(final GateTable table) {
