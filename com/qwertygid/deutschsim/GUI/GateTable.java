@@ -32,19 +32,15 @@ public class GateTable extends JPanel{
 	}
 	
 	@Override
-	public void paintComponent(Graphics g) {
-		final int canvas_width = table.get_col_count() * gate_table_col_width,
-				canvas_height = table.get_row_count() * gate_table_row_height;
-		
-		setPreferredSize(new Dimension(canvas_width, canvas_height));
+	public void paintComponent(Graphics g) {		
 		super.paintComponent(g);
 		
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setColor(Color.BLACK);
 		g2d.setStroke(new BasicStroke(2));
-		
-		for (int y = gate_table_row_height / 2; y < canvas_height; y += gate_table_row_height) {
-			g2d.drawLine(0, y, canvas_width, y);
+
+		for (int y = gate_table_row_height / 2; y < get_canvas_height(); y += gate_table_row_height) {
+			g2d.drawLine(0, y, get_canvas_width(), y);
 		}
 		
 		for (int row = 0; row < table.get_row_count(); row++)
@@ -74,6 +70,10 @@ public class GateTable extends JPanel{
 		}
 	}
 	
+	public void update_size() {	
+		setPreferredSize(new Dimension(get_canvas_width(), get_canvas_height()));
+	}
+	
 	public Table<Gate> get_table() {
 		return table;
 	}
@@ -84,6 +84,14 @@ public class GateTable extends JPanel{
 	
 	public int get_gate_table_col_width() {
 		return gate_table_col_width;
+	}
+	
+	private int get_canvas_width() {
+		return table.get_col_count() * gate_table_col_width; 
+	}
+	
+	private int get_canvas_height() {
+		return table.get_row_count() * gate_table_row_height;
 	}
 	
 	private final Table<Gate> table;
