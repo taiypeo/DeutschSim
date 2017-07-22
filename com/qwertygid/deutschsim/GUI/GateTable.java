@@ -47,11 +47,16 @@ public class GateTable extends JPanel{
 			for (int col = 0; col < table.get_col_count(); col++) {
 				Gate gate = table.get_element(row, col);
 				if (gate != null) {
-					final int x = gate_table_col_width * col, y = gate_table_row_height * row;
+					final int x = gate_table_col_width * col, y = gate_table_row_height * row,
+							gate_height = gate_table_row_height * (gate.get_ports_number() - 1) + gate_table_cell_size;
+					
+					g2d.setStroke(new BasicStroke(1));
 					
 					g2d.setColor(Color.BLACK);
-					g2d.setStroke(new BasicStroke(1));
-					g2d.drawRect(x, y, gate_table_cell_size, gate_table_cell_size);
+					g2d.drawRect(x, y, gate_table_cell_size, gate_height);
+					
+					g2d.setColor(Color.WHITE);
+					g2d.fillRect(x + 1, y + 1, gate_table_cell_size - 1, gate_height - 1);
 				}
 			}
 		

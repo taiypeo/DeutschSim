@@ -3,6 +3,8 @@ package com.qwertygid.deutschsim.Logic;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 
+import com.qwertygid.deutschsim.misc.Tools;
+
 public class StandardGateCreator {
 	public static Gate create_pauli_x() {
 		Complex[][] data = new Complex[][] {

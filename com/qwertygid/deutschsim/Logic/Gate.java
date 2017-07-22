@@ -6,6 +6,8 @@ import org.apache.commons.math3.linear.FieldMatrix;
 import org.apache.commons.math3.linear.FieldMatrixChangingVisitor;
 import org.apache.commons.math3.linear.FieldMatrixPreservingVisitor;
 
+import com.qwertygid.deutschsim.misc.Tools;
+
 public class Gate {
 	// Rotation constructor
 	public Gate(final String id, double angle_x, double angle_y, double angle_z, final boolean in_degrees)

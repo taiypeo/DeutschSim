@@ -40,7 +40,7 @@ import java.awt.Font;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
-import com.qwertygid.deutschsim.Logic.Tools;
+import com.qwertygid.deutschsim.misc.Tools;
 
 public class GUI {	
 	public GUI() {
@@ -223,8 +223,6 @@ public class GUI {
 	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 1, initial_state_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
 	
-	private static final String dot_image_path = "/img/dot.png";
-	
 	private static class GateListCellRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 6442140178911177597L;
 		
@@ -241,7 +239,7 @@ public class GUI {
 			
 			String text = ((Gate) value).get_id();
 			if (text.equals(Tools.CONTROL_ID)) {
-				component.setIcon(new ImageIcon(getClass().getResource(dot_image_path)));
+				component.setIcon(new ImageIcon(getClass().getResource(Tools.dot_image_path)));
 				component.setText("");
 			} else
 				component.setText(text);

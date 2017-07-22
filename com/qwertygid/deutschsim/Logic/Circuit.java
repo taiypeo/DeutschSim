@@ -11,6 +11,8 @@ import org.apache.commons.math3.linear.FieldMatrixChangingVisitor;
 import org.apache.commons.math3.linear.FieldVector;
 import org.apache.commons.math3.linear.MatrixUtils;
 
+import com.qwertygid.deutschsim.misc.Tools;
+
 public class Circuit {
 	public Circuit() {
 		gates = new Table<Gate>();
