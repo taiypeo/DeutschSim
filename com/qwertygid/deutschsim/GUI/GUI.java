@@ -233,24 +233,30 @@ public class GUI {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
 				boolean cell_has_focus) {
-			// TODO add checks for casts
+			Component component = super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
 			
-			JLabel component = (JLabel) super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
+			if (component instanceof JLabel) {	
+				JLabel label = (JLabel) component;
+				
+				if (value instanceof Gate) {
+					String text = ((Gate) value).get_id();
+					if (text.equals(Tools.CONTROL_ID)) {
+						label.setIcon(new ImageIcon(getClass().getResource(Tools.dot_image_path)));
+						label.setText("");
+					} else
+						label.setText(text);
+					label.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
+					label.setBorder(new LineBorder(Color.BLACK));
+					
+					JPanel panel = new JPanel();
+					panel.setBackground(Color.WHITE);
+					panel.add(component);
+					
+					return panel;
+				}
+			}
 			
-			String text = ((Gate) value).get_id();
-			if (text.equals(Tools.CONTROL_ID)) {
-				component.setIcon(new ImageIcon(getClass().getResource(Tools.dot_image_path)));
-				component.setText("");
-			} else
-				component.setText(text);
-			component.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
-			component.setBorder(new LineBorder(Color.BLACK));
-			
-			JPanel panel = new JPanel();
-			panel.setBackground(Color.WHITE);
-			panel.add(component);
-			
-			return panel;
+			return null;
 		}
 	}
 	
