@@ -27,7 +27,7 @@ public class GateTable extends JPanel{
 		table = new Table<Gate>();		
 		this.gate_table_cell_size = gate_table_cell_size;
 		this.gate_table_row_height = gate_table_row_height;
-		this.gate_table_col_width = gate_table_cell_size + 1;
+		this.gate_table_col_width = gate_table_cell_size + 2;
 		dot_image = new ImageIcon(getClass().getResource(Tools.dot_image_path));
 		
 		setBackground(Color.WHITE);

@@ -1,5 +1,6 @@
 package com.qwertygid.deutschsim.GUI;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -22,6 +23,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -37,6 +39,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.awt.Font;
@@ -47,8 +50,8 @@ import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GUI {	
 	public GUI() {
-		JFrame frame = new JFrame("DeutschSim");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame = new JFrame("DeutschSim");
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
@@ -60,6 +63,10 @@ public class GUI {
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 		
+		setup();
+	}
+	
+	public void setup() {		
 		JSplitPane main_split_pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		main_split_pane.setResizeWeight(main_split_pane_resize_weight);
 		frame.getContentPane().add(main_split_pane);
@@ -180,7 +187,15 @@ public class GUI {
 		JMenu file_menu = new JMenu("File");
 		menu_bar.add(file_menu);
 		
-		JMenuItem item_new = new JMenuItem("New");
+		JMenuItem item_new = new JMenuItem(new AbstractAction("New") {
+			private static final long serialVersionUID = 3699016056959009199L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				frame.dispose();
+				setup();
+			}
+		});
 		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
 		file_menu.add(item_new);
 		
@@ -234,7 +249,9 @@ public class GUI {
 		frame.setVisible(true);
 	}
 	
-	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 1, initial_state_table_column_width = 25;
+	private JFrame frame;
+	
+	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 2, initial_state_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
 	
 	private static class GateListCellRenderer extends DefaultListCellRenderer {
