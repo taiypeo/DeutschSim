@@ -219,7 +219,14 @@ public class GUI {
 		
 		file_menu.addSeparator();
 		
-		JMenuItem item_quit = new JMenuItem("Quit");
+		JMenuItem item_quit = new JMenuItem(new AbstractAction("Quit") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();				
+			}
+		});
 		item_quit.setAccelerator(KeyStroke.getKeyStroke('Q', menu_mask));
 		file_menu.add(item_quit);
 		
