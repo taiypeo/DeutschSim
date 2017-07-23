@@ -3,6 +3,7 @@ package com.qwertygid.deutschsim.GUI;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -75,6 +76,8 @@ public class GateTable extends JPanel{
 					
 					final int text_x = x + (gate_table_cell_size - text_width) / 2,
 							text_y = (int) (y + (gate_height + text_height) / 2 - lm.getDescent());
+					
+					// TODO add text cut-off
 					g2d.drawString(gate.get_id(), text_x, text_y);
 				}
 			}

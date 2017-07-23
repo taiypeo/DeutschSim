@@ -92,7 +92,7 @@ public class GUI {
 				""
 			}
 		));
-		initial_state_table.setFont(Tools.gate_font);
+		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		initial_state_table.setRowHeight(gate_table_row_height);
 		initial_state_table.setFocusable(false);
 		initial_state_table.setRowSelectionAllowed(false);
