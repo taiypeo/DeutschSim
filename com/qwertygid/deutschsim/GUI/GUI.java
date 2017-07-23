@@ -228,6 +228,8 @@ public class GUI {
 		
 		public GateListCellRenderer() {
 			super.setHorizontalAlignment(SwingConstants.CENTER);
+			
+			dot_image = new ImageIcon(getClass().getResource(Tools.dot_image_path));
 		}
 
 		@Override
@@ -241,7 +243,7 @@ public class GUI {
 				if (value instanceof Gate) {
 					String text = ((Gate) value).get_id();
 					if (text.equals(Tools.CONTROL_ID)) {
-						label.setIcon(new ImageIcon(getClass().getResource(Tools.dot_image_path)));
+						label.setIcon(dot_image);
 						label.setText("");
 					} else
 						label.setText(text);
@@ -258,6 +260,8 @@ public class GUI {
 			
 			return null;
 		}
+		
+		private final ImageIcon dot_image;
 	}
 	
 	private static class GateListTransferHandler extends TransferHandler {

@@ -3,7 +3,6 @@ package com.qwertygid.deutschsim.GUI;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
@@ -28,6 +28,7 @@ public class GateTable extends JPanel{
 		this.gate_table_cell_size = gate_table_cell_size;
 		this.gate_table_row_height = gate_table_row_height;
 		this.gate_table_col_width = gate_table_cell_size + 1;
+		dot_image = new ImageIcon(getClass().getResource(Tools.dot_image_path));
 		
 		setBackground(Color.WHITE);
 		
@@ -65,20 +66,24 @@ public class GateTable extends JPanel{
 					
 					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					
-					g2d.setFont(Tools.gate_font);
-					
-					FontRenderContext frc = g2d.getFontRenderContext();
-					final int text_width = (int) Tools.gate_font.getStringBounds(gate.get_id(), frc).
-							getWidth();
-					
-					LineMetrics lm = Tools.gate_font.getLineMetrics(gate.get_id(), frc);
-					final int text_height = (int) (lm.getAscent() + lm.getDescent());
-					
-					final int text_x = x + (gate_table_cell_size - text_width) / 2,
-							text_y = (int) (y + (gate_height + text_height) / 2 - lm.getDescent());
-					
-					// TODO add text cut-off
-					g2d.drawString(gate.get_id(), text_x, text_y);
+					if (gate.get_id().equals(Tools.CONTROL_ID))
+						dot_image.paintIcon(this, g2d, x, y);
+					else {
+						g2d.setFont(Tools.gate_font);
+						
+						FontRenderContext frc = g2d.getFontRenderContext();
+						final int text_width = (int) Tools.gate_font.getStringBounds(gate.get_id(), frc).
+								getWidth();
+						
+						LineMetrics lm = Tools.gate_font.getLineMetrics(gate.get_id(), frc);
+						final int text_height = (int) (lm.getAscent() + lm.getDescent());
+						
+						final int text_x = x + (gate_table_cell_size - text_width) / 2,
+								text_y = (int) (y + (gate_height + text_height) / 2 - lm.getDescent());
+						
+						// TODO add text cut-off
+						g2d.drawString(gate.get_id(), text_x, text_y);
+					}
 				}
 			}
 		
@@ -123,6 +128,8 @@ public class GateTable extends JPanel{
 	
 	private final Table<Gate> table;
 	private final int gate_table_cell_size, gate_table_row_height, gate_table_col_width;
+	
+	private final ImageIcon dot_image;
 	
 	private final MouseHandler handler;
 	
