@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -32,9 +33,11 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.awt.Font;
 
@@ -169,6 +172,8 @@ public class GUI {
 		list.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		list_scroll_pane.setViewportView(list);
 		
+		final int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		
 		JMenuBar menu_bar = new JMenuBar();
 		frame.setJMenuBar(menu_bar);
 		
@@ -176,39 +181,48 @@ public class GUI {
 		menu_bar.add(file_menu);
 		
 		JMenuItem item_new = new JMenuItem("New");
+		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
 		file_menu.add(item_new);
 		
-		JMenuItem item_load = new JMenuItem("Load");
-		file_menu.add(item_load);
+		JMenuItem item_open = new JMenuItem("Open");
+		item_open.setAccelerator(KeyStroke.getKeyStroke('O', menu_mask));
+		file_menu.add(item_open);
 		
 		JMenuItem item_save = new JMenuItem("Save");
+		item_save.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask));
 		file_menu.add(item_save);
 		
 		JMenuItem item_save_as = new JMenuItem("Save As");
+		item_save_as.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask | KeyEvent.SHIFT_DOWN_MASK));
 		file_menu.add(item_save_as);
 		
 		file_menu.addSeparator();
 		
-		JMenuItem item_load_circuit_gate = new JMenuItem("Load Circuit Gate");
+		JMenuItem item_load_circuit_gate = new JMenuItem("Load Gate");
+		item_load_circuit_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
 		file_menu.add(item_load_circuit_gate);
 		
 		file_menu.addSeparator();
 		
 		JMenuItem item_quit = new JMenuItem("Quit");
+		item_quit.setAccelerator(KeyStroke.getKeyStroke('Q', menu_mask));
 		file_menu.add(item_quit);
 		
 		JMenu circuit_menu = new JMenu("Circuit");
 		menu_bar.add(circuit_menu);
 		
 		JMenuItem item_simulate = new JMenuItem("Simulate");
+		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 		circuit_menu.add(item_simulate);
 		
 		JMenuItem item_change_qubits = new JMenuItem("Change Qubits");
+		item_change_qubits.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0));
 		circuit_menu.add(item_change_qubits);
 		
 		circuit_menu.addSeparator();
 		
 		JMenuItem item_create_custom_gate = new JMenuItem("Create Custom Gate");
+		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
 		circuit_menu.add(item_create_custom_gate);
 		
 		JMenu help_menu = new JMenu("Help");
