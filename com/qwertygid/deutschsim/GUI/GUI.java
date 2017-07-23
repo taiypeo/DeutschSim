@@ -40,7 +40,7 @@ import java.awt.Font;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
-import com.qwertygid.deutschsim.misc.Tools;
+import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GUI {	
 	public GUI() {

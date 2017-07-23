@@ -18,7 +18,7 @@ import javax.swing.event.MouseInputListener;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.Table;
-import com.qwertygid.deutschsim.misc.Tools;
+import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GateTable extends JPanel{
 	private static final long serialVersionUID = 3779004937588318481L;

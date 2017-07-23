@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.FieldMatrix;
 import org.apache.commons.math3.linear.FieldMatrixChangingVisitor;
 import org.apache.commons.math3.linear.FieldMatrixPreservingVisitor;
 
-import com.qwertygid.deutschsim.misc.Tools;
+import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class Gate {
 	// Rotation constructor

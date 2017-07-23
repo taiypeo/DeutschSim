@@ -1,4 +1,4 @@
-package com.qwertygid.deutschsim.misc;
+package com.qwertygid.deutschsim.Miscellaneous;
 
 import java.awt.Font;
 
