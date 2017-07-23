@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -14,6 +17,7 @@ import javax.swing.event.MouseInputListener;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.Table;
+import com.qwertygid.deutschsim.misc.Tools;
 
 public class GateTable extends JPanel{
 	private static final long serialVersionUID = 3779004937588318481L;
@@ -52,11 +56,26 @@ public class GateTable extends JPanel{
 					
 					g2d.setStroke(new BasicStroke(1));
 					
+					g2d.setColor(Color.WHITE);
+					g2d.fillRect(x + 1, y + 1, gate_table_cell_size - 1, gate_height - 1);
+					
 					g2d.setColor(Color.BLACK);
 					g2d.drawRect(x, y, gate_table_cell_size, gate_height);
 					
-					g2d.setColor(Color.WHITE);
-					g2d.fillRect(x + 1, y + 1, gate_table_cell_size - 1, gate_height - 1);
+					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					
+					g2d.setFont(Tools.gate_font);
+					
+					FontRenderContext frc = g2d.getFontRenderContext();
+					final int text_width = (int) Tools.gate_font.getStringBounds(gate.get_id(), frc).
+							getWidth();
+					
+					LineMetrics lm = Tools.gate_font.getLineMetrics(gate.get_id(), frc);
+					final int text_height = (int) (lm.getAscent() + lm.getDescent());
+					
+					final int text_x = x + (gate_table_cell_size - text_width) / 2,
+							text_y = (int) (y + (gate_height + text_height) / 2 - lm.getDescent());
+					g2d.drawString(gate.get_id(), text_x, text_y);
 				}
 			}
 		
@@ -117,6 +136,8 @@ public class GateTable extends JPanel{
 				
 				if (table.get_table().get_element(row, col) != null)
 					table.get_table().remove_element(row, col);
+				
+				table.repaint();
 			}
 		}
 
