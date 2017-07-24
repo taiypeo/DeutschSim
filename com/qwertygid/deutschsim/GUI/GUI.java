@@ -353,6 +353,13 @@ public class GUI {
 								col = drop_location.x / table.get_gate_table_col_width();
 						
 						table.get_table().insert_element(gate, row, col);
+						// TODO add check for overlapping/going out of bounds (Circuit.valid()?)
+						
+						if (col == table.get_table().get_col_count() - 1) {
+							table.get_table().add_col();
+							table.update_size();
+						}
+						
 						table.repaint();
 					}
 				} catch (UnsupportedFlavorException | IOException | NullPointerException ex) {

@@ -104,6 +104,7 @@ public class GateTable extends JPanel{
 	
 	public void update_size() {	
 		setPreferredSize(new Dimension(get_canvas_width(), get_canvas_height()));
+		revalidate();
 	}
 	
 	public Table<Gate> get_table() {
@@ -144,8 +145,15 @@ public class GateTable extends JPanel{
 				final int row = last_mouse_point.y / table.get_gate_table_row_height(),
 						col = last_mouse_point.x / table.get_gate_table_col_width();
 				
-				if (table.get_table().get_element(row, col) != null)
+				if (table.get_table().get_element(row, col) != null) {
 					table.get_table().remove_element(row, col);
+					
+					if (table.get_table().get_col_count() > 1 &&
+							col == table.get_table().get_col_count() - 2) {
+						table.get_table().remove_last_col();
+						table.update_size();
+					}
+				}
 				
 				table.repaint();
 			}
