@@ -23,7 +23,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -51,7 +50,7 @@ import com.qwertygid.deutschsim.Miscellaneous.Tools;
 public class GUI {	
 	public GUI() {
 		frame = new JFrame("DeutschSim");
-		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
@@ -64,6 +63,7 @@ public class GUI {
 		}
 		
 		setup();
+		frame.setVisible(true);
 	}
 	
 	public void setup() {		
@@ -192,8 +192,10 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				frame.dispose();
+				frame.getContentPane().removeAll();
 				setup();
+				// TODO add restoration of JSplitPanes' panels' sizes
+				frame.validate();
 			}
 		});
 		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
@@ -252,8 +254,6 @@ public class GUI {
 		
 		JMenuItem item_about = new JMenuItem("About");
 		help_menu.add(item_about);
-		
-		frame.setVisible(true);
 	}
 	
 	private JFrame frame;
