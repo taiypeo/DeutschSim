@@ -170,7 +170,6 @@ public class GateTable extends JPanel{
 		@Override
 		public void mouseEntered(MouseEvent ev) {
 			last_mouse_point = ev.getPoint();
-			table.repaint();
 		}
 
 		@Override

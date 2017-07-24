@@ -81,7 +81,7 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		JTable initial_state_table = new JTable() {
+		initial_state_table = new JTable() {
 			private static final long serialVersionUID = 1127708984190699322L;
 
 			@Override
@@ -89,19 +89,6 @@ public class GUI {
 				return false;
 			}
 		};
-		initial_state_table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{"|0>"},
-				{"|0>"},
-				{"|0>"},
-				{"|0>"},
-				{"|0>"},
-				{"|0>"},
-			},
-			new String[] {
-				""
-			}
-		));
 		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		initial_state_table.setRowHeight(gate_table_row_height);
 		initial_state_table.setFocusable(false);
@@ -111,17 +98,17 @@ public class GUI {
 		initial_state_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		initial_state_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		initial_state_table.setTableHeader(null);
-		for (int col = 0; col < initial_state_table.getColumnCount(); col++)
-			initial_state_table.getColumnModel().getColumn(col).setPreferredWidth(initial_state_table_column_width);
+		
+		initial_state_table.setModel(new DefaultTableModel(new Object[][] {{"|0>"}}, new String[] {""}));
+		update_initial_state_table_col_width();
+		
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
 		gbc_initial_state_table.gridx = 0;
 		gbc_initial_state_table.gridy = 0;
 		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
 		
-		GateTable gate_table = new GateTable(gate_table_cell_size, gate_table_row_height);
+		gate_table = new GateTable(gate_table_cell_size, gate_table_row_height);
 		gate_table.setTransferHandler(new GateTableTransferHandler(frame, gate_table));
-		for (int i = 0; i < 6; i++)
-			gate_table.get_table().add_row();
 		gate_table.get_table().add_col();
 		gate_table.update_size();
 		GridBagConstraints gbc_gate_table = new GridBagConstraints();
@@ -238,7 +225,41 @@ public class GUI {
 		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 		circuit_menu.add(item_simulate);
 		
-		JMenuItem item_change_qubits = new JMenuItem("Change Qubits");
+		JMenuItem item_change_qubits = new JMenuItem(new AbstractAction("Change Qubits") {
+			private static final long serialVersionUID = 8549028014281850661L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String new_qubits = (String) JOptionPane.showInputDialog(frame, "Enter a qubit sequence:",
+						"Change Qubits", JOptionPane.PLAIN_MESSAGE);
+				if (!new_qubits.matches("[01]+")) {
+					JOptionPane.showMessageDialog(frame, "The provided string is not a valid qubit sequence.\n" +
+							"A valid qubit sequence contains one or more '0' or '1' characters.",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					
+					return;
+				}
+				
+				qubits = new_qubits;
+				
+				// TODO maybe instead of emptying the whole table this function should instead
+				// append/remove rows?
+				gate_table.get_table().empty();
+				
+				Object[][] data = new Object[qubits.length()][1];
+				for (int qubit = 0; qubit < qubits.length(); qubit++) {
+					data[qubit][0] = "|" + qubits.charAt(qubit) + ">";
+					
+					gate_table.get_table().add_row();
+				}
+				
+				gate_table.get_table().add_col();
+				gate_table.update_size();
+				
+				initial_state_table.setModel(new DefaultTableModel(data, new String[] {""}));
+				update_initial_state_table_col_width();				
+			}
+		});
 		item_change_qubits.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0));
 		circuit_menu.add(item_change_qubits);
 		
@@ -255,7 +276,16 @@ public class GUI {
 		help_menu.add(item_about);
 	}
 	
+	private void update_initial_state_table_col_width() {
+		for (int col = 0; col < initial_state_table.getColumnCount(); col++)
+			initial_state_table.getColumnModel().getColumn(col).setPreferredWidth(initial_state_table_column_width);
+	}
+	
 	private JFrame frame;
+	private JTable initial_state_table;
+	private GateTable gate_table;
+	
+	private String qubits;
 	
 	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 2, initial_state_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;

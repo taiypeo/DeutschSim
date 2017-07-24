@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Table<T> {
 	public Table() {
-		table = new ArrayList<ArrayList<T>>();
+		empty();
 	}
 	
 	public Table(final ArrayList<ArrayList<T>> table) {
@@ -149,6 +149,10 @@ public class Table<T> {
 	
 	public boolean is_empty() {
 		return (table.isEmpty()) || (table.get(0).isEmpty());
+	}
+	
+	public void empty() {
+		table = new ArrayList<ArrayList<T>>();
 	}
 	
 	private boolean is_in_table(final int row, final int col) {
