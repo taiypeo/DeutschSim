@@ -151,7 +151,14 @@ public class GateTable extends JPanel{
 					if (table.get_table().get_col_count() > 1 &&
 							col == table.get_table().get_col_count() - 2 &&
 							table.get_table().is_col_empty(col)) {
-						table.get_table().remove_last_col();
+						
+						// Delete unnecessary empty columns
+						for (int current_col = col; current_col >= 0; current_col--)
+							if (table.get_table().is_col_empty(current_col))
+								table.get_table().remove_last_col();
+							else
+								break;
+						
 						table.update_size();
 					}
 				}
@@ -162,7 +169,8 @@ public class GateTable extends JPanel{
 
 		@Override
 		public void mouseEntered(MouseEvent ev) {
-			
+			last_mouse_point = ev.getPoint();
+			table.repaint();
 		}
 
 		@Override
@@ -184,13 +192,11 @@ public class GateTable extends JPanel{
 		@Override
 		public void mouseDragged(MouseEvent ev) {
 			mouse_move_action(ev.getPoint());
-			
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent ev) {
 			mouse_move_action(ev.getPoint());
-			
 		}
 		
 		public Point get_last_mouse_point() {
