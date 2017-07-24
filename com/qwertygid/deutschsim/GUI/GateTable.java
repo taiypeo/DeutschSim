@@ -149,7 +149,8 @@ public class GateTable extends JPanel{
 					table.get_table().remove_element(row, col);
 					
 					if (table.get_table().get_col_count() > 1 &&
-							col == table.get_table().get_col_count() - 2) {
+							col == table.get_table().get_col_count() - 2 &&
+							table.get_table().is_col_empty(col)) {
 						table.get_table().remove_last_col();
 						table.update_size();
 					}

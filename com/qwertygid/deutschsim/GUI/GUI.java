@@ -122,8 +122,7 @@ public class GUI {
 		gate_table.setTransferHandler(new GateTableTransferHandler(frame, gate_table));
 		for (int i = 0; i < 6; i++)
 			gate_table.get_table().add_row();
-		for (int i = 0; i < 4; i++)
-			gate_table.get_table().add_col();
+		gate_table.get_table().add_col();
 		gate_table.update_size();
 		GridBagConstraints gbc_gate_table = new GridBagConstraints();
 		gbc_gate_table.gridx = 1;
