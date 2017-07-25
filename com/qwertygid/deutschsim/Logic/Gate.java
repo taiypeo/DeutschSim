@@ -80,8 +80,7 @@ public class Gate {
 					"Provided matrix is not a valid quantum gate");
 	}
 	
-	public boolean valid()
-	{
+	public boolean valid() {
 		// Checks if this is a control matrix
 		Complex[][] data = new Complex[][] {
 				{new Complex(Tools.CONTROL_VALUE), new Complex(0)},

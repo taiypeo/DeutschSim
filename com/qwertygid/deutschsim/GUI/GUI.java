@@ -12,6 +12,10 @@ import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.linear.FieldVector;
+
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.JCheckBox;
@@ -43,6 +47,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.awt.Font;
 
+import com.qwertygid.deutschsim.Logic.Circuit;
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
@@ -58,8 +63,8 @@ public class GUI {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(frame);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(frame, "Failed to set up the system look & feel, using the standard Swing look & feel",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			Tools.error(frame, "Failed to set up the system look & feel, using" +
+					"the standard Swing look & feel");
 		}
 		
 		setup();
@@ -98,9 +103,10 @@ public class GUI {
 		initial_state_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		initial_state_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		initial_state_table.setTableHeader(null);
-		
 		initial_state_table.setModel(new DefaultTableModel(new Object[][] {{"|0>"}}, new String[] {""}));
 		update_initial_state_table_col_width();
+		
+		qubits = "0";
 		
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
 		gbc_initial_state_table.gridx = 0;
@@ -130,14 +136,14 @@ public class GUI {
 		result_panel.setLayout(new BoxLayout(result_panel, BoxLayout.Y_AXIS));
 		result_scroll_pane.setViewportView(result_panel);
 		
-		JTextPane result_text_pane = new JTextPane();
+		result_text_pane = new JTextPane();
 		result_text_pane.setEditable(false);
 		result_panel.add(result_text_pane);
 		
 		JPanel checkbox_panel = new JPanel();
 		result_panel.add(checkbox_panel);
 		
-		JCheckBox show_all_checkbox = new JCheckBox("Show all");
+		show_all_checkbox = new JCheckBox("Show all");
 		checkbox_panel.add(show_all_checkbox);
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -221,7 +227,46 @@ public class GUI {
 		JMenu circuit_menu = new JMenu("Circuit");
 		menu_bar.add(circuit_menu);
 		
-		JMenuItem item_simulate = new JMenuItem("Simulate");
+		JMenuItem item_simulate = new JMenuItem(new AbstractAction("Simulate") {
+			private static final long serialVersionUID = 8549028014281850661L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {	
+				try {
+					Circuit circuit = new Circuit(gate_table.get_table());
+					FieldVector<Complex> results = circuit.operate(qubits);
+					
+					StringBuilder text = new StringBuilder("Simulation results:\n");
+					
+					final int qubits_number = Integer.toBinaryString(results.getDimension() - 1).length();
+					for (int index = 0; index < results.getDimension(); index++) {
+						final Complex current = results.getEntry(index);
+						final double current_magnitude = current.abs();
+						
+						if (!show_all_checkbox.isSelected() && Tools.equal(current_magnitude, 0))
+							continue;
+						
+						double current_percentage = Math.pow(current_magnitude, 2) * 100;
+						if (Tools.equal(current_percentage, Math.round(current_percentage)))
+							current_percentage = Math.round(current_percentage);
+						
+						StringBuilder qubits_values = new StringBuilder(Integer.toBinaryString(index));
+						for (int length = qubits_values.length(); length < qubits_number; length++)
+							qubits_values.insert(0, '0');
+						
+						text.append(current.getReal() + (current.getImaginary() < 0 ? "" : "+") +
+								current.getImaginary() + "i |" + qubits_values + ">\t" +
+								current_percentage + "% chance\n");
+					}
+					
+					result_text_pane.setText(text.toString());
+					
+				} catch (RuntimeException ex) {
+					Tools.error(frame, "A runtime exception has been caught:\n" + ex.getMessage());
+					ex.printStackTrace();
+				}
+			}
+		});
 		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 		circuit_menu.add(item_simulate);
 		
@@ -233,9 +278,8 @@ public class GUI {
 				String new_qubits = (String) JOptionPane.showInputDialog(frame, "Enter a qubit sequence:",
 						"Change Qubits", JOptionPane.PLAIN_MESSAGE);
 				if (!new_qubits.matches("[01]+")) {
-					JOptionPane.showMessageDialog(frame, "The provided string is not a valid qubit sequence.\n" +
-							"A valid qubit sequence contains one or more '0' or '1' characters.",
-							"Error", JOptionPane.ERROR_MESSAGE);
+					Tools.error(frame, "The provided string is not a valid qubit sequence.\n" +
+							"A valid qubit sequence contains one or more '0' or '1' characters.");
 					
 					return;
 				}
@@ -284,6 +328,8 @@ public class GUI {
 	private JFrame frame;
 	private JTable initial_state_table;
 	private GateTable gate_table;
+	private JTextPane result_text_pane;
+	private JCheckBox show_all_checkbox;
 	
 	private String qubits;
 	
@@ -392,8 +438,7 @@ public class GUI {
 						table.repaint();
 					}
 				} catch (UnsupportedFlavorException | IOException | NullPointerException ex) {
-					JOptionPane.showMessageDialog(frame, "Failed to import data into the gate table",
-							"Error", JOptionPane.ERROR_MESSAGE);
+					Tools.error(frame, "Failed to import data into the gate table");
 				}
 			}
 			
