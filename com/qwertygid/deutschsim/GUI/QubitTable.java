@@ -8,6 +8,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 public class QubitTable extends JTable {
+	private static final long serialVersionUID = 4964929671296568709L;
+	
 	public QubitTable(final int row_height, final int col_width) {
 		setFont(new Font("Tahoma", Font.PLAIN, 12));
 		setRowHeight(row_height);

@@ -8,10 +8,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
-import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.FieldVector;
