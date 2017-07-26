@@ -62,37 +62,29 @@ public class GUI {
 		setup_child_split_pane_left(child_split_pane);
 		setup_child_split_pane_right(child_split_pane);
 		
-		JMenuBar menu_bar = new JMenuBar();
-		frame.setJMenuBar(menu_bar);
+		JMenuBar menu_bar = create_menu_bar();
 		
-		JMenu file_menu = new JMenu("File");
-		menu_bar.add(file_menu);
-		
+		JMenu file_menu = create_menu("File", menu_bar);
 		add_item_new(file_menu);
 		add_item_open(file_menu);
 		add_item_save(file_menu);
 		add_item_save_as(file_menu);
-		
 		file_menu.addSeparator();
 		add_item_load_circuit_gate(file_menu);
-		
 		file_menu.addSeparator();
 		add_item_quit(file_menu);
 
-		JMenu circuit_menu = new JMenu("Circuit");
-		menu_bar.add(circuit_menu);
-		
+		JMenu circuit_menu = create_menu("Circuit", menu_bar);
 		add_item_simulate(circuit_menu);
 		add_item_change_qubits(circuit_menu);		
-		
 		circuit_menu.addSeparator();
 		add_item_create_custom_gate(circuit_menu);
 		
-		JMenu help_menu = new JMenu("Help");
-		menu_bar.add(help_menu);
-		
+		JMenu help_menu = create_menu("Help", menu_bar);;
 		add_item_about(help_menu);
 	}
+	
+	// Window GUI setup functions
 	
 	private JSplitPane create_main_split_pane() {
 		JSplitPane main_split_pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -165,6 +157,22 @@ public class GUI {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		result_panel.add(scrollPane);
+	}
+	
+	// Menu setup functions
+	
+	private JMenuBar create_menu_bar() {
+		JMenuBar menu_bar = new JMenuBar();
+		frame.setJMenuBar(menu_bar);
+		
+		return menu_bar;
+	}
+	
+	private JMenu create_menu(final String name, final JMenuBar menu_bar) {
+		JMenu menu = new JMenu(name);
+		menu_bar.add(menu);
+		
+		return menu;
 	}
 	
 	private void add_item_new(final JMenu file_menu) {
