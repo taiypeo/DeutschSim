@@ -62,241 +62,36 @@ public class GUI {
 		setup_child_split_pane_left(child_split_pane);
 		setup_child_split_pane_right(child_split_pane);
 		
-		final int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-		
 		JMenuBar menu_bar = new JMenuBar();
 		frame.setJMenuBar(menu_bar);
 		
 		JMenu file_menu = new JMenu("File");
 		menu_bar.add(file_menu);
 		
-		JMenuItem item_new = new JMenuItem(new AbstractAction("New") {
-			private static final long serialVersionUID = 3699016056959009199L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				frame.getContentPane().removeAll();
-				setup();
-				// TODO add restoration of JSplitPanes' panels' sizes
-				frame.validate();
-				frame.setTitle("DeutschSim - Untitled");
-				current_file = null;
-			}
-		});
-		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
-		file_menu.add(item_new);
-		
-		JMenuItem item_open = new JMenuItem(new AbstractAction("Open") {
-			private static final long serialVersionUID = -4441750652720636192L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser file_chooser = new JFileChooser();
-				file_chooser.setCurrentDirectory(new File("."));
-				
-				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-						"DeutschSim circuits", "dcirc");
-				file_chooser.setFileFilter(filter);
-				
-				final int return_value = file_chooser.showOpenDialog(frame);
-				if (return_value == JFileChooser.APPROVE_OPTION) {
-					File file = file_chooser.getSelectedFile();
-					Serializer serializer = null;
-					try {
-						// Serializer constructor automatically calls valid() on itself
-						serializer = new Serializer(file);
-					} catch (RuntimeException | IOException ex) {
-						Tools.error(frame, "An exception has been caught:\n" +
-								ex.getMessage());
-						return;
-					}
-					
-					qubit_table.set_qubits(serializer.get_qubit_sequence());
-					qubit_table.update_table();
-					
-					gate_table.set_table(serializer.get_circuit().get_gates_table());
-					gate_table.update_size();
-					
-					current_file = file;
-					frame.setTitle("DeutschSim - " + current_file.getName());
-					
-					result_text_pane.setText("");
-				}
-			}
-		});
-		item_open.setAccelerator(KeyStroke.getKeyStroke('O', menu_mask));
-		file_menu.add(item_open);
-		
-		JMenuItem item_save = new JMenuItem(new AbstractAction("Save") {
-			private static final long serialVersionUID = -4441750652720636192L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (current_file == null) {
-					JFileChooser file_chooser = new JFileChooser() {
-						private static final long serialVersionUID = 4649847794719144813L;
-						
-						@Override
-						public void approveSelection() {
-							File file = getSelectedFile();
-							if (file.exists()) {
-								final int result = JOptionPane.showConfirmDialog(this,
-										"The file exists, overwrite?", "File exists",
-										JOptionPane.YES_NO_OPTION);
-								if (result == JOptionPane.YES_OPTION)
-									super.approveSelection();
-								
-								return;
-							}
-							
-							super.approveSelection();
-						}
-					};
-					file_chooser.setCurrentDirectory(new File("."));
-					file_chooser.setSelectedFile(new File(".dcirc"));
-					
-					FileNameExtensionFilter filter = new FileNameExtensionFilter(
-							"DeutschSim circuits", "dcirc");
-					file_chooser.setFileFilter(filter);
-					
-					final int return_value = file_chooser.showSaveDialog(frame);
-					if (return_value == JFileChooser.APPROVE_OPTION) {
-						current_file = file_chooser.getSelectedFile();
-						frame.setTitle("DeutschSim - " + current_file.getName());
-					}
-				}
-				
-				save();
-			}
-			
-			private void save() {
-				try {
-					Serializer serializer = new Serializer(qubit_table.get_qubits(),
-							new Circuit(gate_table.get_table()));
-					serializer.serialize(current_file);
-				} catch (RuntimeException|IOException ex) {
-					Tools.error(frame, "An exception has been caught:\n" +
-								ex.getMessage());
-				}
-			}
-		});
-		item_save.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask));
-		file_menu.add(item_save);
-		
-		JMenuItem item_save_as = new JMenuItem("Save As");
-		item_save_as.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask | KeyEvent.SHIFT_DOWN_MASK));
-		file_menu.add(item_save_as);
+		add_item_new(file_menu);
+		add_item_open(file_menu);
+		add_item_save(file_menu);
+		add_item_save_as(file_menu);
 		
 		file_menu.addSeparator();
-		
-		JMenuItem item_load_circuit_gate = new JMenuItem("Load Gate");
-		item_load_circuit_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
-		file_menu.add(item_load_circuit_gate);
+		add_item_load_circuit_gate(file_menu);
 		
 		file_menu.addSeparator();
-		
-		JMenuItem item_quit = new JMenuItem(new AbstractAction("Quit") {
-			private static final long serialVersionUID = -4441750652720636192L;
+		add_item_quit(file_menu);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();				
-			}
-		});
-		item_quit.setAccelerator(KeyStroke.getKeyStroke('Q', menu_mask));
-		file_menu.add(item_quit);
-		
 		JMenu circuit_menu = new JMenu("Circuit");
 		menu_bar.add(circuit_menu);
 		
-		JMenuItem item_simulate = new JMenuItem(new AbstractAction("Simulate") {
-			private static final long serialVersionUID = 8549028014281850661L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {	
-				try {
-					Circuit circuit = new Circuit(gate_table.get_table());
-					FieldVector<Complex> results = circuit.operate(qubit_table.get_qubits());
-					
-					StringBuilder text = new StringBuilder("Simulation results:\n");
-					
-					final int qubits_number = Integer.toBinaryString(results.getDimension() - 1).length();
-					for (int index = 0; index < results.getDimension(); index++) {
-						final Complex current = results.getEntry(index);
-						final double current_magnitude = current.abs();
-						
-						if (!show_all_checkbox.isSelected() && Tools.equal(current_magnitude, 0))
-							continue;
-						
-						double current_percentage = Math.pow(current_magnitude, 2) * 100;
-						if (Tools.equal(current_percentage, Math.round(current_percentage)))
-							current_percentage = Math.round(current_percentage);
-						
-						StringBuilder qubits_values = new StringBuilder(Integer.toBinaryString(index));
-						for (int length = qubits_values.length(); length < qubits_number; length++)
-							qubits_values.insert(0, '0');
-						
-						text.append(current.getReal() + (current.getImaginary() < 0 ? "" : "+") +
-								current.getImaginary() + "i |" + qubits_values + ">\t" +
-								current_percentage + "% chance\n");
-					}
-					
-					result_text_pane.setText(text.toString());
-					
-				} catch (RuntimeException ex) {
-					Tools.error(frame, "A runtime exception has been caught:\n" + ex.getMessage());
-					ex.printStackTrace();
-				}
-			}
-		});
-		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0));
-		circuit_menu.add(item_simulate);
-		
-		JMenuItem item_change_qubits = new JMenuItem(new AbstractAction("Change Qubits") {
-			private static final long serialVersionUID = 8549028014281850661L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String new_qubits = (String) JOptionPane.showInputDialog(frame, "Enter a qubit sequence:",
-						"Change Qubits", JOptionPane.PLAIN_MESSAGE);
-				if (new_qubits == null)
-					return;
-				else if (!new_qubits.matches("[01]+")) {
-					Tools.error(frame, "The provided string is not a valid qubit sequence.\n" +
-							"A valid qubit sequence contains one or more '0' or '1' characters.");
-					
-					return;
-				}
-				
-				qubit_table.set_qubits(new_qubits);
-				qubit_table.update_table();
-				
-				// TODO maybe instead of emptying the whole table this function should instead
-				// append/remove rows?
-				gate_table.get_table().empty();
-				
-				for (int qubit = 0; qubit < qubit_table.get_qubits().length(); qubit++)
-					gate_table.get_table().add_row();
-				
-				gate_table.get_table().add_col();
-				gate_table.update_size();
-								
-			}
-		});
-		item_change_qubits.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0));
-		circuit_menu.add(item_change_qubits);
+		add_item_simulate(circuit_menu);
+		add_item_change_qubits(circuit_menu);		
 		
 		circuit_menu.addSeparator();
-		
-		JMenuItem item_create_custom_gate = new JMenuItem("Create Custom Gate");
-		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
-		circuit_menu.add(item_create_custom_gate);
+		add_item_create_custom_gate(circuit_menu);
 		
 		JMenu help_menu = new JMenu("Help");
 		menu_bar.add(help_menu);
 		
-		JMenuItem item_about = new JMenuItem("About");
-		help_menu.add(item_about);
+		add_item_about(help_menu);
 	}
 	
 	private JSplitPane create_main_split_pane() {
@@ -372,6 +167,242 @@ public class GUI {
 		result_panel.add(scrollPane);
 	}
 	
+	private void add_item_new(final JMenu file_menu) {
+		JMenuItem item_new = new JMenuItem(new AbstractAction("New") {
+			private static final long serialVersionUID = 3699016056959009199L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				frame.getContentPane().removeAll();
+				setup();
+				// TODO add restoration of JSplitPanes' panels' sizes
+				frame.validate();
+				frame.setTitle("DeutschSim - Untitled");
+				current_file = null;
+			}
+		});
+		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
+		file_menu.add(item_new);
+	}
+	
+	private void add_item_open(final JMenu file_menu) {
+		JMenuItem item_open = new JMenuItem(new AbstractAction("Open") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser file_chooser = new JFileChooser();
+				file_chooser.setCurrentDirectory(new File("."));
+				
+				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						"DeutschSim circuits", "dcirc");
+				file_chooser.setFileFilter(filter);
+				
+				final int return_value = file_chooser.showOpenDialog(frame);
+				if (return_value == JFileChooser.APPROVE_OPTION) {
+					File file = file_chooser.getSelectedFile();
+					Serializer serializer = null;
+					try {
+						// Serializer constructor automatically calls valid() on itself
+						serializer = new Serializer(file);
+					} catch (RuntimeException | IOException ex) {
+						Tools.error(frame, "An exception has been caught:\n" +
+								ex.getMessage());
+						return;
+					}
+					
+					qubit_table.set_qubits(serializer.get_qubit_sequence());
+					qubit_table.update_table();
+					
+					gate_table.set_table(serializer.get_circuit().get_gates_table());
+					gate_table.update_size();
+					
+					current_file = file;
+					frame.setTitle("DeutschSim - " + current_file.getName());
+					
+					result_text_pane.setText("");
+				}
+			}
+		});
+		item_open.setAccelerator(KeyStroke.getKeyStroke('O', menu_mask));
+		file_menu.add(item_open);
+	}
+	
+	private void add_item_save(final JMenu file_menu) {
+		JMenuItem item_save = new JMenuItem(new AbstractAction("Save") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (current_file == null) {
+					JFileChooser file_chooser = new JFileChooser() {
+						private static final long serialVersionUID = 4649847794719144813L;
+						
+						@Override
+						public void approveSelection() {
+							File file = getSelectedFile();
+							if (file.exists()) {
+								final int result = JOptionPane.showConfirmDialog(this,
+										"The file exists, overwrite?", "File exists",
+										JOptionPane.YES_NO_OPTION);
+								if (result == JOptionPane.YES_OPTION)
+									super.approveSelection();
+								
+								return;
+							}
+							
+							super.approveSelection();
+						}
+					};
+					file_chooser.setCurrentDirectory(new File("."));
+					file_chooser.setSelectedFile(new File(".dcirc"));
+					
+					FileNameExtensionFilter filter = new FileNameExtensionFilter(
+							"DeutschSim circuits", "dcirc");
+					file_chooser.setFileFilter(filter);
+					
+					final int return_value = file_chooser.showSaveDialog(frame);
+					if (return_value == JFileChooser.APPROVE_OPTION) {
+						current_file = file_chooser.getSelectedFile();
+						frame.setTitle("DeutschSim - " + current_file.getName());
+					}
+				}
+				
+				save();
+			}
+			
+			private void save() {
+				try {
+					Serializer serializer = new Serializer(qubit_table.get_qubits(),
+							new Circuit(gate_table.get_table()));
+					serializer.serialize(current_file);
+				} catch (RuntimeException|IOException ex) {
+					Tools.error(frame, "An exception has been caught:\n" +
+								ex.getMessage());
+				}
+			}
+		});
+		item_save.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask));
+		file_menu.add(item_save);
+	}
+	
+	private void add_item_save_as(final JMenu file_menu) {
+		JMenuItem item_save_as = new JMenuItem("Save As");
+		item_save_as.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask | KeyEvent.SHIFT_DOWN_MASK));
+		file_menu.add(item_save_as);
+	}
+	
+	private void add_item_load_circuit_gate(final JMenu file_menu) {
+		JMenuItem item_load_circuit_gate = new JMenuItem("Load Gate");
+		item_load_circuit_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
+		file_menu.add(item_load_circuit_gate);
+	}
+	
+	private void add_item_quit(final JMenu file_menu) {
+		JMenuItem item_quit = new JMenuItem(new AbstractAction("Quit") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();				
+			}
+		});
+		item_quit.setAccelerator(KeyStroke.getKeyStroke('Q', menu_mask));
+		file_menu.add(item_quit);
+	}
+	
+	private void add_item_simulate(final JMenu circuit_menu) {
+		JMenuItem item_simulate = new JMenuItem(new AbstractAction("Simulate") {
+			private static final long serialVersionUID = 8549028014281850661L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {	
+				try {
+					Circuit circuit = new Circuit(gate_table.get_table());
+					FieldVector<Complex> results = circuit.operate(qubit_table.get_qubits());
+					
+					StringBuilder text = new StringBuilder("Simulation results:\n");
+					
+					final int qubits_number = Integer.toBinaryString(results.getDimension() - 1).length();
+					for (int index = 0; index < results.getDimension(); index++) {
+						final Complex current = results.getEntry(index);
+						final double current_magnitude = current.abs();
+						
+						if (!show_all_checkbox.isSelected() && Tools.equal(current_magnitude, 0))
+							continue;
+						
+						double current_percentage = Math.pow(current_magnitude, 2) * 100;
+						if (Tools.equal(current_percentage, Math.round(current_percentage)))
+							current_percentage = Math.round(current_percentage);
+						
+						StringBuilder qubits_values = new StringBuilder(Integer.toBinaryString(index));
+						for (int length = qubits_values.length(); length < qubits_number; length++)
+							qubits_values.insert(0, '0');
+						
+						text.append(current.getReal() + (current.getImaginary() < 0 ? "" : "+") +
+								current.getImaginary() + "i |" + qubits_values + ">\t" +
+								current_percentage + "% chance\n");
+					}
+					
+					result_text_pane.setText(text.toString());
+					
+				} catch (RuntimeException ex) {
+					Tools.error(frame, "A runtime exception has been caught:\n" + ex.getMessage());
+					ex.printStackTrace();
+				}
+			}
+		});
+		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0));
+		circuit_menu.add(item_simulate);
+	}
+	
+	private void add_item_change_qubits(final JMenu circuit_menu) {
+		JMenuItem item_change_qubits = new JMenuItem(new AbstractAction("Change Qubits") {
+			private static final long serialVersionUID = 8549028014281850661L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String new_qubits = (String) JOptionPane.showInputDialog(frame, "Enter a qubit sequence:",
+						"Change Qubits", JOptionPane.PLAIN_MESSAGE);
+				if (new_qubits == null)
+					return;
+				else if (!new_qubits.matches("[01]+")) {
+					Tools.error(frame, "The provided string is not a valid qubit sequence.\n" +
+							"A valid qubit sequence contains one or more '0' or '1' characters.");
+					
+					return;
+				}
+				
+				qubit_table.set_qubits(new_qubits);
+				qubit_table.update_table();
+				
+				// TODO maybe instead of emptying the whole table this function should instead
+				// append/remove rows?
+				gate_table.get_table().empty();
+				
+				for (int qubit = 0; qubit < qubit_table.get_qubits().length(); qubit++)
+					gate_table.get_table().add_row();
+				
+				gate_table.get_table().add_col();
+				gate_table.update_size();
+								
+			}
+		});
+		item_change_qubits.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0));
+		circuit_menu.add(item_change_qubits);
+	}
+	
+	private void add_item_create_custom_gate(final JMenu circuit_menu) {
+		JMenuItem item_create_custom_gate = new JMenuItem("Create Custom Gate");
+		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
+		circuit_menu.add(item_create_custom_gate);
+	}
+	
+	private void add_item_about(final JMenu help_menu) {
+		JMenuItem item_about = new JMenuItem("About");
+		help_menu.add(item_about);
+	}
+	
 	private JFrame frame;
 	private QubitTable qubit_table;
 	private GateTable gate_table;
@@ -386,4 +417,5 @@ public class GUI {
 			qubit_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85,
 			child_split_pane_resize_weight = 0.8;
+	private final static int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 }
