@@ -430,7 +430,14 @@ public class GUI {
 								col = drop_location.x / table.get_gate_table_col_width();
 						
 						table.get_table().insert_element(gate, row, col);
-						// TODO add check for overlapping/going out of bounds (Circuit.valid()?)
+						try {
+							// Circuit constructor automatically calls valid() on itself
+							// and throws an exception if valid() returns false
+							new Circuit(table.get_table());
+						} catch(RuntimeException ex) {
+							table.get_table().remove_element(row, col);
+							return false;
+						}
 						
 						if (col == table.get_table().get_col_count() - 1) {
 							table.get_table().add_col();
