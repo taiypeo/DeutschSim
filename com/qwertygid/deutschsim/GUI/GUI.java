@@ -267,7 +267,7 @@ public class GUI {
 				}
 			}
 		});
-		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+		item_simulate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0));
 		circuit_menu.add(item_simulate);
 		
 		JMenuItem item_change_qubits = new JMenuItem(new AbstractAction("Change Qubits") {
@@ -277,7 +277,9 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {
 				String new_qubits = (String) JOptionPane.showInputDialog(frame, "Enter a qubit sequence:",
 						"Change Qubits", JOptionPane.PLAIN_MESSAGE);
-				if (!new_qubits.matches("[01]+")) {
+				if (new_qubits == null)
+					return;
+				else if (!new_qubits.matches("[01]+")) {
 					Tools.error(frame, "The provided string is not a valid qubit sequence.\n" +
 							"A valid qubit sequence contains one or more '0' or '1' characters.");
 					
