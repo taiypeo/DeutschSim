@@ -117,7 +117,7 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		qubit_table = new QubitTable(gate_table_row_height, qubit_table_column_width);		
+		qubit_table = new QubitTable(gate_table_row_height);		
 		GridBagConstraints gbc_qubit_table = new GridBagConstraints();
 		gbc_qubit_table.gridx = 0;
 		gbc_qubit_table.gridy = 0;
@@ -421,9 +421,8 @@ public class GUI {
 	private File current_file;
 	
 	private static final int gate_table_cell_size = 43,
-			gate_table_row_height = gate_table_cell_size + 2,
-			qubit_table_column_width = 25;
+			gate_table_row_height = gate_table_cell_size + 2;
 	private static final double main_split_pane_resize_weight = 0.85,
 			child_split_pane_resize_weight = 0.8;
-	private final static int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	private static final int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 }

@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 public class QubitTable extends JTable {
 	private static final long serialVersionUID = 4964929671296568709L;
 	
-	public QubitTable(final int row_height, final int col_width) {
+	public QubitTable(final int row_height) {
 		setFont(new Font("Tahoma", Font.PLAIN, 12));
 		setRowHeight(row_height);
 		setFocusable(false);
@@ -22,7 +22,6 @@ public class QubitTable extends JTable {
 		setTableHeader(null);
 		setModel(new DefaultTableModel(new Object[][] {{"|0>"}}, new String[] {""}));
 		
-		this.col_width = col_width;
 		update_col_width();
 		
 		qubits = "0";
@@ -35,12 +34,6 @@ public class QubitTable extends JTable {
 		
 		setModel(new DefaultTableModel(data, new String[] {""}));
 		update_col_width();
-	}
-	
-	public void update_col_width() {
-		for (int col = 0; col < getColumnCount(); col++)
-			getColumnModel().getColumn(col).
-				setPreferredWidth(col_width);
 	}
 
 	public void set_qubits(final String qubits) {
@@ -55,7 +48,14 @@ public class QubitTable extends JTable {
 	public boolean isCellEditable(int row, int col) {
 		return false;
 	}
+
+	private void update_col_width() {
+		for (int col = 0; col < getColumnCount(); col++)
+			getColumnModel().getColumn(col).
+				setPreferredWidth(col_width);
+	}
 	
-	private final int col_width;
 	private String qubits;
+	
+	private static final int col_width = 25;
 }
