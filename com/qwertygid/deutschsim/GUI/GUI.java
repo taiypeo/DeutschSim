@@ -2,6 +2,7 @@ package com.qwertygid.deutschsim.GUI;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
@@ -32,6 +33,7 @@ import java.io.IOException;
 
 import com.qwertygid.deutschsim.IO.Serializer;
 import com.qwertygid.deutschsim.Logic.Circuit;
+import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GUI {	
@@ -198,35 +200,20 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser file_chooser = new JFileChooser();
-				file_chooser.setCurrentDirectory(new File("."));
-				
-				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-						"DeutschSim circuits", "dcirc");
-				file_chooser.setFileFilter(filter);
-				
-				final int return_value = file_chooser.showOpenDialog(frame);
-				if (return_value == JFileChooser.APPROVE_OPTION) {
-					File file = file_chooser.getSelectedFile();
-					Serializer serializer = null;
-					try {
-						// Serializer constructor automatically calls valid() on itself
-						serializer = new Serializer(file);
-					} catch (RuntimeException | IOException ex) {
-						Tools.error(frame, "An exception has been caught:\n" +
-								ex.getMessage());
-						return;
+				File file = open_prompt();
+				if (file != null) {
+					Serializer serializer = load(file);
+					if (serializer != null) {
+						qubit_table.set_qubits(serializer.get_qubit_sequence());
+						qubit_table.update_table();
+						
+						gate_table.set_table(serializer.get_circuit().get_gates_table());
+						gate_table.update_size();
+						
+						set_current_file(file);
+						
+						result_text_pane.setText("");
 					}
-					
-					qubit_table.set_qubits(serializer.get_qubit_sequence());
-					qubit_table.update_table();
-					
-					gate_table.set_table(serializer.get_circuit().get_gates_table());
-					gate_table.update_size();
-					
-					set_current_file(file);
-					
-					result_text_pane.setText("");
 				}
 			}
 		});
@@ -271,7 +258,33 @@ public class GUI {
 	}
 	
 	private void add_item_load_circuit_gate(final JMenu file_menu) {
-		JMenuItem item_load_circuit_gate = new JMenuItem("Load Gate");
+		JMenuItem item_load_circuit_gate = new JMenuItem(new AbstractAction("Load Gate") {
+			private static final long serialVersionUID = -4886025282570154766L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File file = open_prompt();
+				if (file != null) {
+					Serializer serializer = load(file);
+					if (serializer != null) {
+						String name = (String) JOptionPane.showInputDialog(frame, "Enter a gate ID:",
+								"Gate ID", JOptionPane.PLAIN_MESSAGE);
+						if (name == null || name.equals(""))
+							return;
+						
+						Gate gate = new Gate(name, 
+								serializer.get_circuit().evaluate_circuit_matrix());
+						if (!gate.valid()) {
+							Tools.error(frame, "Evaluated gate matrix is not a valid quantum gate");
+							return;
+						}
+						
+						((DefaultListModel<Gate>) gate_list.getModel()).addElement(gate);
+					}
+				}
+			}
+			
+		});
 		item_load_circuit_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
 		file_menu.add(item_load_circuit_gate);
 	}
@@ -436,6 +449,31 @@ public class GUI {
 		} catch (RuntimeException|IOException ex) {
 			Tools.error(frame, "An exception has been caught:\n" +
 						ex.getMessage());
+		}
+	}
+	
+	private File open_prompt() {
+		JFileChooser file_chooser = new JFileChooser();
+		file_chooser.setCurrentDirectory(new File("."));
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				"DeutschSim circuits", "dcirc");
+		file_chooser.setFileFilter(filter);
+		
+		final int return_value = file_chooser.showOpenDialog(frame);
+		if (return_value == JFileChooser.APPROVE_OPTION)
+			return file_chooser.getSelectedFile();
+		
+		return null;
+	}
+	
+	private Serializer load(final File file) {
+		try {
+			return new Serializer(file);
+		} catch (RuntimeException | IOException ex) {
+			Tools.error(frame, "An exception has been caught:\n" +
+					ex.getMessage());
+			return null;
 		}
 	}
 	
