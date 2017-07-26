@@ -53,65 +53,14 @@ public class GUI {
 		frame.setVisible(true);
 	}
 	
-	public void setup() {		
-		JSplitPane main_split_pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		main_split_pane.setResizeWeight(main_split_pane_resize_weight);
-		frame.getContentPane().add(main_split_pane);
+	public void setup() {			
+		JSplitPane main_split_pane = create_main_split_pane();
 		
-		JSplitPane child_split_pane = new JSplitPane();
-		child_split_pane.setResizeWeight(child_split_pane_resize_weight);
-		main_split_pane.setLeftComponent(child_split_pane);
+		JSplitPane child_split_pane = setup_main_split_pane_top(main_split_pane);
+		setup_main_split_pane_bottom(main_split_pane);
 		
-		JScrollPane quantum_system_scroll_pane = new JScrollPane();
-		child_split_pane.setLeftComponent(quantum_system_scroll_pane);
-		
-		JPanel quantum_system_panel = new JPanel();
-		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
-		
-		qubit_table = new QubitTable(gate_table_row_height, qubit_table_column_width);		
-		GridBagConstraints gbc_qubit_table = new GridBagConstraints();
-		gbc_qubit_table.gridx = 0;
-		gbc_qubit_table.gridy = 0;
-		quantum_system_panel.add(qubit_table, gbc_qubit_table);
-		
-		gate_table = new GateTable(gate_table_cell_size, gate_table_row_height, frame);
-		GridBagConstraints gbc_gate_table = new GridBagConstraints();
-		gbc_gate_table.gridx = 1;
-		gbc_gate_table.gridy = 0;
-		quantum_system_panel.add(gate_table, gbc_gate_table);
-		
-		GridBagLayout gbl_quantum_system_panel = new GridBagLayout();
-		gbl_quantum_system_panel.columnWidths = new int[]{qubit_table.getWidth(), gate_table.getWidth(), 0};
-		gbl_quantum_system_panel.rowHeights = new int[]{qubit_table.getHeight(), 0};
-		gbl_quantum_system_panel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		gbl_quantum_system_panel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		quantum_system_panel.setLayout(gbl_quantum_system_panel);
-		
-		JScrollPane result_scroll_pane = new JScrollPane();
-		child_split_pane.setRightComponent(result_scroll_pane);
-		
-		JPanel result_panel = new JPanel();
-		result_panel.setLayout(new BoxLayout(result_panel, BoxLayout.Y_AXIS));
-		result_scroll_pane.setViewportView(result_panel);
-		
-		result_text_pane = new JTextPane();
-		result_text_pane.setEditable(false);
-		result_panel.add(result_text_pane);
-		
-		JPanel checkbox_panel = new JPanel();
-		result_panel.add(checkbox_panel);
-		
-		show_all_checkbox = new JCheckBox("Show all");
-		checkbox_panel.add(show_all_checkbox);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		result_panel.add(scrollPane);
-		
-		JScrollPane list_scroll_pane = new JScrollPane();
-		main_split_pane.setRightComponent(list_scroll_pane);
-		
-		gate_list = new GateList(gate_table_cell_size);
-		list_scroll_pane.setViewportView(gate_list);
+		setup_child_split_pane_left(child_split_pane);
+		setup_child_split_pane_right(child_split_pane);
 		
 		final int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		
@@ -348,6 +297,79 @@ public class GUI {
 		
 		JMenuItem item_about = new JMenuItem("About");
 		help_menu.add(item_about);
+	}
+	
+	private JSplitPane create_main_split_pane() {
+		JSplitPane main_split_pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		main_split_pane.setResizeWeight(main_split_pane_resize_weight);
+		frame.getContentPane().add(main_split_pane);
+		
+		return main_split_pane;
+	}
+	
+	private JSplitPane setup_main_split_pane_top(final JSplitPane split_pane) {
+		JSplitPane child_split_pane = new JSplitPane();
+		child_split_pane.setResizeWeight(child_split_pane_resize_weight);
+		split_pane.setLeftComponent(child_split_pane);
+		
+		return child_split_pane;
+	}
+	
+	private void setup_main_split_pane_bottom(final JSplitPane split_pane) {
+		JScrollPane list_scroll_pane = new JScrollPane();
+		split_pane.setRightComponent(list_scroll_pane);
+		
+		gate_list = new GateList(gate_table_cell_size);
+		list_scroll_pane.setViewportView(gate_list);
+	}
+	
+	private void setup_child_split_pane_left(final JSplitPane split_pane) {
+		JScrollPane quantum_system_scroll_pane = new JScrollPane();
+		split_pane.setLeftComponent(quantum_system_scroll_pane);
+		
+		JPanel quantum_system_panel = new JPanel();
+		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
+		
+		qubit_table = new QubitTable(gate_table_row_height, qubit_table_column_width);		
+		GridBagConstraints gbc_qubit_table = new GridBagConstraints();
+		gbc_qubit_table.gridx = 0;
+		gbc_qubit_table.gridy = 0;
+		quantum_system_panel.add(qubit_table, gbc_qubit_table);
+		
+		gate_table = new GateTable(gate_table_cell_size, gate_table_row_height, frame);
+		GridBagConstraints gbc_gate_table = new GridBagConstraints();
+		gbc_gate_table.gridx = 1;
+		gbc_gate_table.gridy = 0;
+		quantum_system_panel.add(gate_table, gbc_gate_table);
+		
+		GridBagLayout gbl_quantum_system_panel = new GridBagLayout();
+		gbl_quantum_system_panel.columnWidths = new int[]{qubit_table.getWidth(), gate_table.getWidth(), 0};
+		gbl_quantum_system_panel.rowHeights = new int[]{qubit_table.getHeight(), 0};
+		gbl_quantum_system_panel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_quantum_system_panel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		quantum_system_panel.setLayout(gbl_quantum_system_panel);
+	}
+	
+	private void setup_child_split_pane_right(final JSplitPane split_pane){
+		JScrollPane result_scroll_pane = new JScrollPane();
+		split_pane.setRightComponent(result_scroll_pane);
+		
+		JPanel result_panel = new JPanel();
+		result_panel.setLayout(new BoxLayout(result_panel, BoxLayout.Y_AXIS));
+		result_scroll_pane.setViewportView(result_panel);
+		
+		result_text_pane = new JTextPane();
+		result_text_pane.setEditable(false);
+		result_panel.add(result_text_pane);
+		
+		JPanel checkbox_panel = new JPanel();
+		result_panel.add(checkbox_panel);
+		
+		show_all_checkbox = new JCheckBox("Show all");
+		checkbox_panel.add(show_all_checkbox);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		result_panel.add(scrollPane);
 	}
 	
 	private JFrame frame;
