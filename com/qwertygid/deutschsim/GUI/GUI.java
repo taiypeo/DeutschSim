@@ -407,7 +407,19 @@ public class GUI {
 	}
 	
 	private void add_item_about(final JMenu help_menu) {
-		JMenuItem item_about = new JMenuItem("About");
+		JMenuItem item_about = new JMenuItem(new AbstractAction("About"){
+			private static final long serialVersionUID = -8311117685045905144L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				final String text = "DeutschSim by Qwertygid, 2017\n\n" +
+						"https://github.com/QwertygidQ/DeutschSim";
+				
+				// TODO add a logo
+				JOptionPane.showMessageDialog(frame, text,
+						"About", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
 		help_menu.add(item_about);
 	}
 	
