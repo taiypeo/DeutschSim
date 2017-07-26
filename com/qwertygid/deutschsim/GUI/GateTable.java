@@ -7,15 +7,21 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.event.MouseInputListener;
 
+import com.qwertygid.deutschsim.Logic.Circuit;
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.Table;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
@@ -23,7 +29,8 @@ import com.qwertygid.deutschsim.Miscellaneous.Tools;
 public class GateTable extends JPanel{
 	private static final long serialVersionUID = 3779004937588318481L;
 	
-	public GateTable(final int gate_table_cell_size, final int gate_table_row_height) {
+	public GateTable(final int gate_table_cell_size, final int gate_table_row_height,
+			final JFrame frame) {
 		table = new Table<Gate>();		
 		this.gate_table_cell_size = gate_table_cell_size;
 		this.gate_table_row_height = gate_table_row_height;
@@ -35,6 +42,11 @@ public class GateTable extends JPanel{
 		handler = new MouseHandler(this);
 		addMouseListener(handler);
 		addMouseMotionListener(handler);
+		
+		setTransferHandler(new GateTableTransferHandler(frame, this));
+		
+		table.add_col();
+		update_size();
 	}
 	
 	@Override
@@ -215,6 +227,61 @@ public class GateTable extends JPanel{
 		}
 		
 		private Point last_mouse_point;
+		private final GateTable table;
+	}
+	
+	private static class GateTableTransferHandler extends TransferHandler {
+		private static final long serialVersionUID = 1978163502085092717L;
+		
+		public GateTableTransferHandler(final JFrame frame, final GateTable table) {
+			this.frame = frame;
+			this.table = table;
+		}
+		
+		@Override
+		public boolean canImport(TransferSupport support) {
+			return support.isDataFlavorSupported(GateTransferable.GATE_DATA_FLAVOR);
+		}
+		
+		@Override
+		public boolean importData(TransferSupport support) {
+			if (canImport(support)) {
+				try {
+					Transferable transferable = support.getTransferable();
+					Object value = transferable.getTransferData(GateTransferable.GATE_DATA_FLAVOR);
+					
+					if (value instanceof Gate) {
+						Gate gate = (Gate) value;
+						Point drop_location = support.getDropLocation().getDropPoint();
+						final int row = drop_location.y / table.get_gate_table_row_height(),
+								col = drop_location.x / table.get_gate_table_col_width();
+						
+						table.get_table().insert_element(gate, row, col);
+						try {
+							// Circuit constructor automatically calls valid() on itself
+							// and throws an exception if valid() returns false
+							new Circuit(table.get_table());
+						} catch(RuntimeException ex) {
+							table.get_table().remove_element(row, col);
+							return false;
+						}
+						
+						if (col == table.get_table().get_col_count() - 1) {
+							table.get_table().add_col();
+							table.update_size();
+						}
+						
+						table.repaint();
+					}
+				} catch (UnsupportedFlavorException | IOException | NullPointerException ex) {
+					Tools.error(frame, "Failed to import data into the gate table");
+				}
+			}
+			
+			return false;
+		}
+		
+		private final JFrame frame;
 		private final GateTable table;
 	}
 }

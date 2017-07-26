@@ -2,11 +2,7 @@ package com.qwertygid.deutschsim.GUI;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
@@ -17,41 +13,25 @@ import org.apache.commons.math3.linear.FieldVector;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.UIManager;
-import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.awt.Font;
 
 import com.qwertygid.deutschsim.IO.Serializer;
 import com.qwertygid.deutschsim.Logic.Circuit;
-import com.qwertygid.deutschsim.Logic.Gate;
-import com.qwertygid.deutschsim.Logic.StandardGateCreator;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GUI {	
@@ -88,24 +68,21 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new QubitTable(gate_table_row_height, initial_state_table_column_width);		
-		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
-		gbc_initial_state_table.gridx = 0;
-		gbc_initial_state_table.gridy = 0;
-		quantum_system_panel.add(initial_state_table, gbc_initial_state_table);
+		qubit_table = new QubitTable(gate_table_row_height, qubit_table_column_width);		
+		GridBagConstraints gbc_qubit_table = new GridBagConstraints();
+		gbc_qubit_table.gridx = 0;
+		gbc_qubit_table.gridy = 0;
+		quantum_system_panel.add(qubit_table, gbc_qubit_table);
 		
-		gate_table = new GateTable(gate_table_cell_size, gate_table_row_height);
-		gate_table.setTransferHandler(new GateTableTransferHandler(frame, gate_table));
-		gate_table.get_table().add_col();
-		gate_table.update_size();
+		gate_table = new GateTable(gate_table_cell_size, gate_table_row_height, frame);
 		GridBagConstraints gbc_gate_table = new GridBagConstraints();
 		gbc_gate_table.gridx = 1;
 		gbc_gate_table.gridy = 0;
 		quantum_system_panel.add(gate_table, gbc_gate_table);
 		
 		GridBagLayout gbl_quantum_system_panel = new GridBagLayout();
-		gbl_quantum_system_panel.columnWidths = new int[]{initial_state_table.getWidth(), gate_table.getWidth(), 0};
-		gbl_quantum_system_panel.rowHeights = new int[]{initial_state_table.getHeight(), 0};
+		gbl_quantum_system_panel.columnWidths = new int[]{qubit_table.getWidth(), gate_table.getWidth(), 0};
+		gbl_quantum_system_panel.rowHeights = new int[]{qubit_table.getHeight(), 0};
 		gbl_quantum_system_panel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		gbl_quantum_system_panel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		quantum_system_panel.setLayout(gbl_quantum_system_panel);
@@ -133,24 +110,8 @@ public class GUI {
 		JScrollPane list_scroll_pane = new JScrollPane();
 		main_split_pane.setRightComponent(list_scroll_pane);
 		
-		DefaultListModel<Gate> list_model = new DefaultListModel<Gate>();
-		list_model.addElement(StandardGateCreator.create_pauli_x());
-		list_model.addElement(StandardGateCreator.create_pauli_y());
-		list_model.addElement(StandardGateCreator.create_pauli_z());
-		list_model.addElement(StandardGateCreator.create_hadamard());
-		list_model.addElement(StandardGateCreator.create_control());
-		
-		JList<Gate> list = new JList<Gate>(list_model);
-		list.setTransferHandler(new GateListTransferHandler());
-		list.setDragEnabled(true);
-		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setVisibleRowCount(0);
-		list.setFixedCellHeight(gate_table_cell_size + 10);
-		list.setFixedCellWidth(gate_table_cell_size + 10);
-		list.setCellRenderer(new GateListCellRenderer());
-		list.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		list_scroll_pane.setViewportView(list);
+		gate_list = new GateList(gate_table_cell_size);
+		list_scroll_pane.setViewportView(gate_list);
 		
 		final int menu_mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		
@@ -201,14 +162,16 @@ public class GUI {
 						return;
 					}
 					
-					initial_state_table.set_qubits(serializer.get_qubit_sequence());
-					initial_state_table.update_table();
+					qubit_table.set_qubits(serializer.get_qubit_sequence());
+					qubit_table.update_table();
 					
 					gate_table.set_table(serializer.get_circuit().get_gates_table());
 					gate_table.update_size();
 					
 					current_file = file;
 					frame.setTitle("DeutschSim - " + current_file.getName());
+					
+					result_text_pane.setText("");
 				}
 			}
 		});
@@ -259,7 +222,7 @@ public class GUI {
 			
 			private void save() {
 				try {
-					Serializer serializer = new Serializer(initial_state_table.get_qubits(),
+					Serializer serializer = new Serializer(qubit_table.get_qubits(),
 							new Circuit(gate_table.get_table()));
 					serializer.serialize(current_file);
 				} catch (RuntimeException|IOException ex) {
@@ -304,7 +267,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {	
 				try {
 					Circuit circuit = new Circuit(gate_table.get_table());
-					FieldVector<Complex> results = circuit.operate(initial_state_table.get_qubits());
+					FieldVector<Complex> results = circuit.operate(qubit_table.get_qubits());
 					
 					StringBuilder text = new StringBuilder("Simulation results:\n");
 					
@@ -356,14 +319,14 @@ public class GUI {
 					return;
 				}
 				
-				initial_state_table.set_qubits(new_qubits);
-				initial_state_table.update_table();
+				qubit_table.set_qubits(new_qubits);
+				qubit_table.update_table();
 				
 				// TODO maybe instead of emptying the whole table this function should instead
 				// append/remove rows?
 				gate_table.get_table().empty();
 				
-				for (int qubit = 0; qubit < initial_state_table.get_qubits().length(); qubit++)
+				for (int qubit = 0; qubit < qubit_table.get_qubits().length(); qubit++)
 					gate_table.get_table().add_row();
 				
 				gate_table.get_table().add_col();
@@ -388,133 +351,17 @@ public class GUI {
 	}
 	
 	private JFrame frame;
-	private QubitTable initial_state_table;
+	private QubitTable qubit_table;
 	private GateTable gate_table;
 	private JTextPane result_text_pane;
 	private JCheckBox show_all_checkbox;
+	private GateList gate_list;
 	
 	private File current_file;
 	
-	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 2, initial_state_table_column_width = 25;
-	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;
-	
-	private static class GateListCellRenderer extends DefaultListCellRenderer {
-		private static final long serialVersionUID = 6442140178911177597L;
-		
-		public GateListCellRenderer() {
-			super.setHorizontalAlignment(SwingConstants.CENTER);
-			
-			dot_image = new ImageIcon(getClass().getResource(Tools.dot_image_path));
-		}
-
-		@Override
-		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean is_selected,
-				boolean cell_has_focus) {
-			Component component = super.getListCellRendererComponent(list, value, index, is_selected, cell_has_focus);
-			
-			if (component instanceof JLabel) {	
-				JLabel label = (JLabel) component;
-				
-				if (value instanceof Gate) {
-					String text = ((Gate) value).get_id();
-					if (text.equals(Tools.CONTROL_ID)) {
-						label.setIcon(dot_image);
-						label.setText("");
-					} else
-						label.setText(text);
-					label.setPreferredSize(new Dimension(gate_table_cell_size, gate_table_cell_size));
-					label.setBorder(new LineBorder(Color.BLACK));
-					
-					JPanel panel = new JPanel();
-					panel.setBackground(Color.WHITE);
-					panel.add(component);
-					
-					return panel;
-				}
-			}
-			
-			return null;
-		}
-		
-		private final ImageIcon dot_image;
-	}
-	
-	private static class GateListTransferHandler extends TransferHandler {
-		private static final long serialVersionUID = 3774691117252660958L;
-
-		@Override
-		public int getSourceActions(JComponent component) {			
-			return DnDConstants.ACTION_COPY;
-		}
-		
-		@Override
-		public Transferable createTransferable(JComponent component) {
-			if (component instanceof JList) {
-				JList<?> list = (JList<?>) component;
-				Object value = list.getSelectedValue();
-				
-				if (value instanceof Gate) {
-					Gate gate = (Gate) value;
-					return new GateTransferable(gate);
-				}
-			}
-			
-			return null;
-		}
-	}
-	
-	private static class GateTableTransferHandler extends TransferHandler {
-		private static final long serialVersionUID = 1978163502085092717L;
-		
-		public GateTableTransferHandler(final JFrame frame, final GateTable table) {
-			this.frame = frame;
-			this.table = table;
-		}
-		
-		@Override
-		public boolean canImport(TransferSupport support) {
-			return support.isDataFlavorSupported(GateTransferable.GATE_DATA_FLAVOR);
-		}
-		
-		@Override
-		public boolean importData(TransferSupport support) {
-			if (canImport(support)) {
-				try {
-					Transferable transferable = support.getTransferable();
-					Object value = transferable.getTransferData(GateTransferable.GATE_DATA_FLAVOR);
-					
-					if (value instanceof Gate) {
-						Gate gate = (Gate) value;
-						Point drop_location = support.getDropLocation().getDropPoint();
-						final int row = drop_location.y / table.get_gate_table_row_height(),
-								col = drop_location.x / table.get_gate_table_col_width();
-						
-						table.get_table().insert_element(gate, row, col);
-						try {
-							// Circuit constructor automatically calls valid() on itself
-							// and throws an exception if valid() returns false
-							new Circuit(table.get_table());
-						} catch(RuntimeException ex) {
-							table.get_table().remove_element(row, col);
-							return false;
-						}
-						
-						if (col == table.get_table().get_col_count() - 1) {
-							table.get_table().add_col();
-							table.update_size();
-						}
-						
-						table.repaint();
-					}
-				} catch (UnsupportedFlavorException | IOException | NullPointerException ex) {
-					Tools.error(frame, "Failed to import data into the gate table");
-				}
-			}
-			
-			return false;
-		}
-		
-		private final JFrame frame;
-		private final GateTable table;
-	}
+	private static final int gate_table_cell_size = 43,
+			gate_table_row_height = gate_table_cell_size + 2,
+			qubit_table_column_width = 25;
+	private static final double main_split_pane_resize_weight = 0.85,
+			child_split_pane_resize_weight = 0.8;
 }
