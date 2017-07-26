@@ -20,6 +20,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -28,6 +29,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -44,9 +46,11 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.awt.Font;
 
+import com.qwertygid.deutschsim.IO.Serializer;
 import com.qwertygid.deutschsim.Logic.Circuit;
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Logic.StandardGateCreator;
@@ -54,7 +58,7 @@ import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class GUI {	
 	public GUI() {
-		frame = new JFrame("DeutschSim");
+		frame = new JFrame("DeutschSim - Untitled");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -86,28 +90,7 @@ public class GUI {
 		JPanel quantum_system_panel = new JPanel();
 		quantum_system_scroll_pane.setViewportView(quantum_system_panel);
 		
-		initial_state_table = new JTable() {
-			private static final long serialVersionUID = 1127708984190699322L;
-
-			@Override
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		};
-		initial_state_table.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		initial_state_table.setRowHeight(gate_table_row_height);
-		initial_state_table.setFocusable(false);
-		initial_state_table.setRowSelectionAllowed(false);
-		initial_state_table.setShowGrid(false);
-		initial_state_table.setIntercellSpacing(new Dimension(0, 0));
-		initial_state_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		initial_state_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		initial_state_table.setTableHeader(null);
-		initial_state_table.setModel(new DefaultTableModel(new Object[][] {{"|0>"}}, new String[] {""}));
-		update_initial_state_table_col_width();
-		
-		qubits = "0";
-		
+		initial_state_table = new QubitTable(gate_table_row_height, initial_state_table_column_width);		
 		GridBagConstraints gbc_initial_state_table = new GridBagConstraints();
 		gbc_initial_state_table.gridx = 0;
 		gbc_initial_state_table.gridy = 0;
@@ -188,16 +171,105 @@ public class GUI {
 				setup();
 				// TODO add restoration of JSplitPanes' panels' sizes
 				frame.validate();
+				frame.setTitle("DeutschSim - Untitled");
+				current_file = null;
 			}
 		});
 		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
 		file_menu.add(item_new);
 		
-		JMenuItem item_open = new JMenuItem("Open");
+		JMenuItem item_open = new JMenuItem(new AbstractAction("Open") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser file_chooser = new JFileChooser();
+				file_chooser.setCurrentDirectory(new File("."));
+				
+				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						"DeutschSim circuits", "dcirc");
+				file_chooser.setFileFilter(filter);
+				
+				final int return_value = file_chooser.showOpenDialog(frame);
+				if (return_value == JFileChooser.APPROVE_OPTION) {
+					File file = file_chooser.getSelectedFile();
+					Serializer serializer = null;
+					try {
+						// Serializer constructor automatically calls valid() on itself
+						serializer = new Serializer(file);
+					} catch (RuntimeException | IOException ex) {
+						Tools.error(frame, "An exception has been caught:\n" +
+								ex.getMessage());
+						return;
+					}
+					
+					initial_state_table.set_qubits(serializer.get_qubit_sequence());
+					initial_state_table.update_table();
+					
+					gate_table.set_table(serializer.get_circuit().get_gates_table());
+					gate_table.update_size();
+					
+					current_file = file;
+					frame.setTitle("DeutschSim - " + current_file.getName());
+				}
+			}
+		});
 		item_open.setAccelerator(KeyStroke.getKeyStroke('O', menu_mask));
 		file_menu.add(item_open);
 		
-		JMenuItem item_save = new JMenuItem("Save");
+		JMenuItem item_save = new JMenuItem(new AbstractAction("Save") {
+			private static final long serialVersionUID = -4441750652720636192L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (current_file == null) {
+					JFileChooser file_chooser = new JFileChooser() {
+						private static final long serialVersionUID = 4649847794719144813L;
+						
+						@Override
+						public void approveSelection() {
+							File file = getSelectedFile();
+							if (file.exists()) {
+								final int result = JOptionPane.showConfirmDialog(this,
+										"The file exists, overwrite?", "File exists",
+										JOptionPane.YES_NO_OPTION);
+								if (result == JOptionPane.YES_OPTION)
+									super.approveSelection();
+								
+								return;
+							}
+							
+							super.approveSelection();
+						}
+					};
+					file_chooser.setCurrentDirectory(new File("."));
+					file_chooser.setSelectedFile(new File(".dcirc"));
+					
+					FileNameExtensionFilter filter = new FileNameExtensionFilter(
+							"DeutschSim circuits", "dcirc");
+					file_chooser.setFileFilter(filter);
+					
+					final int return_value = file_chooser.showSaveDialog(frame);
+					if (return_value == JFileChooser.APPROVE_OPTION) {
+						current_file = file_chooser.getSelectedFile();
+						frame.setTitle("DeutschSim - " + current_file.getName());
+					}
+				}
+				
+				save();
+			}
+			
+			private void save() {
+				try {
+					Serializer serializer = new Serializer(initial_state_table.get_qubits(),
+							new Circuit(gate_table.get_table()));
+					serializer.serialize(current_file);
+				} catch (RuntimeException|IOException ex) {
+					Tools.error(frame, "An exception has been caught:\n" +
+								ex.getMessage());
+				}
+			}
+		});
 		item_save.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask));
 		file_menu.add(item_save);
 		
@@ -234,7 +306,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {	
 				try {
 					Circuit circuit = new Circuit(gate_table.get_table());
-					FieldVector<Complex> results = circuit.operate(qubits);
+					FieldVector<Complex> results = circuit.operate(initial_state_table.get_qubits());
 					
 					StringBuilder text = new StringBuilder("Simulation results:\n");
 					
@@ -286,24 +358,19 @@ public class GUI {
 					return;
 				}
 				
-				qubits = new_qubits;
+				initial_state_table.set_qubits(new_qubits);
+				initial_state_table.update_table();
 				
 				// TODO maybe instead of emptying the whole table this function should instead
 				// append/remove rows?
 				gate_table.get_table().empty();
 				
-				Object[][] data = new Object[qubits.length()][1];
-				for (int qubit = 0; qubit < qubits.length(); qubit++) {
-					data[qubit][0] = "|" + qubits.charAt(qubit) + ">";
-					
+				for (int qubit = 0; qubit < initial_state_table.get_qubits().length(); qubit++)
 					gate_table.get_table().add_row();
-				}
 				
 				gate_table.get_table().add_col();
 				gate_table.update_size();
-				
-				initial_state_table.setModel(new DefaultTableModel(data, new String[] {""}));
-				update_initial_state_table_col_width();				
+								
 			}
 		});
 		item_change_qubits.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0));
@@ -322,18 +389,13 @@ public class GUI {
 		help_menu.add(item_about);
 	}
 	
-	private void update_initial_state_table_col_width() {
-		for (int col = 0; col < initial_state_table.getColumnCount(); col++)
-			initial_state_table.getColumnModel().getColumn(col).setPreferredWidth(initial_state_table_column_width);
-	}
-	
 	private JFrame frame;
-	private JTable initial_state_table;
+	private QubitTable initial_state_table;
 	private GateTable gate_table;
 	private JTextPane result_text_pane;
 	private JCheckBox show_all_checkbox;
 	
-	private String qubits;
+	private File current_file;
 	
 	private static final int gate_table_cell_size = 43, gate_table_row_height = gate_table_cell_size + 2, initial_state_table_column_width = 25;
 	private static final double main_split_pane_resize_weight = 0.85, child_split_pane_resize_weight = 0.8;

@@ -107,6 +107,13 @@ public class GateTable extends JPanel{
 		revalidate();
 	}
 	
+	public void set_table(final Table<Gate> table) {
+		if (!table.valid())
+			throw new RuntimeException("Provided table is not valid");
+		
+		this.table = table;
+	}
+	
 	public Table<Gate> get_table() {
 		return table;
 	}
@@ -127,7 +134,7 @@ public class GateTable extends JPanel{
 		return table.get_row_count() * gate_table_row_height;
 	}
 	
-	private final Table<Gate> table;
+	private Table<Gate> table;
 	private final int gate_table_cell_size, gate_table_row_height, gate_table_col_width;
 	
 	private final ImageIcon dot_image;

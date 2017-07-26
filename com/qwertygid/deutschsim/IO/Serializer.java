@@ -1,6 +1,7 @@
 package com.qwertygid.deutschsim.IO;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,24 +41,24 @@ public class Serializer {
 		set_up_gson();
 	}
 	
-	public Serializer(final String filename) throws IOException {
+	public Serializer(final File file) throws IOException {
 		set_up_gson();
-		deserialize(filename);
+		deserialize(file);
 	}
 	
-	public void serialize(final String filename) throws IOException {
+	public void serialize(final File file) throws IOException {
 		if (!valid())
 			throw new RuntimeException("Tried to save an invalid state");
 		
 		String json = gson.toJson(this);
 		
-		PrintWriter fileout = new PrintWriter(filename);
+		PrintWriter fileout = new PrintWriter(file);
 		fileout.println(json);
 		fileout.close();
 	}
 	
-	public void deserialize(final String filename) throws IOException{
-		BufferedReader filein = new BufferedReader(new FileReader(filename));
+	public void deserialize(final File file) throws IOException{
+		BufferedReader filein = new BufferedReader(new FileReader(file));
 		
 		StringBuilder json = new StringBuilder();
 		String line = filein.readLine();
