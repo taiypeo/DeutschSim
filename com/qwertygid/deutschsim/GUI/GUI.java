@@ -185,8 +185,7 @@ public class GUI {
 				setup();
 				// TODO add restoration of JSplitPanes' panels' sizes
 				frame.validate();
-				frame.setTitle("DeutschSim - Untitled");
-				current_file = null;
+				set_current_file(null);
 			}
 		});
 		item_new.setAccelerator(KeyStroke.getKeyStroke('N', menu_mask));
@@ -225,8 +224,7 @@ public class GUI {
 					gate_table.set_table(serializer.get_circuit().get_gates_table());
 					gate_table.update_size();
 					
-					current_file = file;
-					frame.setTitle("DeutschSim - " + current_file.getName());
+					set_current_file(file);
 					
 					result_text_pane.setText("");
 				}
@@ -241,53 +239,16 @@ public class GUI {
 			private static final long serialVersionUID = -4441750652720636192L;
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) {				
 				if (current_file == null) {
-					JFileChooser file_chooser = new JFileChooser() {
-						private static final long serialVersionUID = 4649847794719144813L;
-						
-						@Override
-						public void approveSelection() {
-							File file = getSelectedFile();
-							if (file.exists()) {
-								final int result = JOptionPane.showConfirmDialog(this,
-										"The file exists, overwrite?", "File exists",
-										JOptionPane.YES_NO_OPTION);
-								if (result == JOptionPane.YES_OPTION)
-									super.approveSelection();
-								
-								return;
-							}
-							
-							super.approveSelection();
-						}
-					};
-					file_chooser.setCurrentDirectory(new File("."));
-					file_chooser.setSelectedFile(new File(".dcirc"));
-					
-					FileNameExtensionFilter filter = new FileNameExtensionFilter(
-							"DeutschSim circuits", "dcirc");
-					file_chooser.setFileFilter(filter);
-					
-					final int return_value = file_chooser.showSaveDialog(frame);
-					if (return_value == JFileChooser.APPROVE_OPTION) {
-						current_file = file_chooser.getSelectedFile();
-						frame.setTitle("DeutschSim - " + current_file.getName());
-					}
+					File file = save_prompt();
+					if (file != null)
+						set_current_file(file);
+					else
+						return;
 				}
 				
-				save();
-			}
-			
-			private void save() {
-				try {
-					Serializer serializer = new Serializer(qubit_table.get_qubits(),
-							new Circuit(gate_table.get_table()));
-					serializer.serialize(current_file);
-				} catch (RuntimeException|IOException ex) {
-					Tools.error(frame, "An exception has been caught:\n" +
-								ex.getMessage());
-				}
+				save(current_file);
 			}
 		});
 		item_save.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask));
@@ -295,7 +256,16 @@ public class GUI {
 	}
 	
 	private void add_item_save_as(final JMenu file_menu) {
-		JMenuItem item_save_as = new JMenuItem("Save As");
+		JMenuItem item_save_as = new JMenuItem(new AbstractAction("Save As") {
+			private static final long serialVersionUID = 8549028014281850661L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				File file = save_prompt();
+				if (file != null) 
+					save(file);
+			}
+		});
 		item_save_as.setAccelerator(KeyStroke.getKeyStroke('S', menu_mask | KeyEvent.SHIFT_DOWN_MASK));
 		file_menu.add(item_save_as);
 	}
@@ -421,6 +391,60 @@ public class GUI {
 			}
 		});
 		help_menu.add(item_about);
+	}
+	
+	// Helper functions
+	private File save_prompt() {
+		JFileChooser file_chooser = new JFileChooser() {
+			private static final long serialVersionUID = 4649847794719144813L;
+			
+			@Override
+			public void approveSelection() {
+				File file = getSelectedFile();
+				if (file.exists()) {
+					final int result = JOptionPane.showConfirmDialog(this,
+							"The file exists, overwrite?", "File exists",
+							JOptionPane.YES_NO_OPTION);
+					if (result == JOptionPane.YES_OPTION)
+						super.approveSelection();
+					
+					return;
+				}
+				
+				super.approveSelection();
+			}
+		};
+		file_chooser.setCurrentDirectory(new File("."));
+		file_chooser.setSelectedFile(new File(".dcirc"));
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				"DeutschSim circuits", "dcirc");
+		file_chooser.setFileFilter(filter);
+		
+		final int return_value = file_chooser.showSaveDialog(frame);
+		if (return_value == JFileChooser.APPROVE_OPTION)
+			return file_chooser.getSelectedFile();
+		
+		return null;	
+	}
+	
+	private void save(final File file) {
+		try {
+			Serializer serializer = new Serializer(qubit_table.get_qubits(),
+					new Circuit(gate_table.get_table()));
+			serializer.serialize(file);
+		} catch (RuntimeException|IOException ex) {
+			Tools.error(frame, "An exception has been caught:\n" +
+						ex.getMessage());
+		}
+	}
+	
+	private void set_current_file(final File file) {
+		current_file = file;
+		if (file != null)
+			frame.setTitle("DeutschSim - " + file.getName());
+		else
+			frame.setTitle("DeutschSim - Untitled");
 	}
 	
 	private JFrame frame;
