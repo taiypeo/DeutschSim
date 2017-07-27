@@ -156,9 +156,6 @@ public class GUI {
 		
 		show_all_checkbox = new JCheckBox("Show all");
 		checkbox_panel.add(show_all_checkbox);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		result_panel.add(scrollPane);
 	}
 	
 	// Menu setup functions
