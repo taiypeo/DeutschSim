@@ -72,7 +72,7 @@ public class GUI {
 		add_item_save(file_menu);
 		add_item_save_as(file_menu);
 		file_menu.addSeparator();
-		add_item_load_circuit_gate(file_menu);
+		add_item_load_gate(file_menu);
 		file_menu.addSeparator();
 		add_item_quit(file_menu);
 
@@ -200,7 +200,7 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				File file = open_prompt();
+				File file = open_prompt("Open");
 				if (file != null) {
 					Serializer serializer = load(file);
 					if (serializer != null) {
@@ -228,7 +228,7 @@ public class GUI {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {				
 				if (current_file == null) {
-					File file = save_prompt();
+					File file = save_prompt("Save");
 					if (file != null)
 						set_current_file(file);
 					else
@@ -248,7 +248,7 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				File file = save_prompt();
+				File file = save_prompt("Save As");
 				if (file != null) 
 					save(file);
 			}
@@ -257,13 +257,13 @@ public class GUI {
 		file_menu.add(item_save_as);
 	}
 	
-	private void add_item_load_circuit_gate(final JMenu file_menu) {
-		JMenuItem item_load_circuit_gate = new JMenuItem(new AbstractAction("Load Gate") {
+	private void add_item_load_gate(final JMenu file_menu) {
+		JMenuItem item_load_gate = new JMenuItem(new AbstractAction("Load Gate") {
 			private static final long serialVersionUID = -4886025282570154766L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File file = open_prompt();
+				File file = open_prompt("Load Gate");
 				if (file != null) {
 					Serializer serializer = load(file);
 					if (serializer != null) {
@@ -285,8 +285,8 @@ public class GUI {
 			}
 			
 		});
-		item_load_circuit_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
-		file_menu.add(item_load_circuit_gate);
+		item_load_gate.setAccelerator(KeyStroke.getKeyStroke('L', menu_mask));
+		file_menu.add(item_load_gate);
 	}
 	
 	private void add_item_quit(final JMenu file_menu) {
@@ -407,7 +407,7 @@ public class GUI {
 	}
 	
 	// Helper functions
-	private File save_prompt() {
+	private File save_prompt(final String title) {
 		JFileChooser file_chooser = new JFileChooser() {
 			private static final long serialVersionUID = 4649847794719144813L;
 			
@@ -429,6 +429,7 @@ public class GUI {
 		};
 		file_chooser.setCurrentDirectory(new File("."));
 		file_chooser.setSelectedFile(new File(".dcirc"));
+		file_chooser.setDialogTitle(title);
 		
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"DeutschSim circuits", "dcirc");
@@ -452,9 +453,10 @@ public class GUI {
 		}
 	}
 	
-	private File open_prompt() {
+	private File open_prompt(final String title) {
 		JFileChooser file_chooser = new JFileChooser();
 		file_chooser.setCurrentDirectory(new File("."));
+		file_chooser.setDialogTitle(title);
 		
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"DeutschSim circuits", "dcirc");
