@@ -381,7 +381,15 @@ public class GUI {
 	}
 	
 	private void add_item_create_custom_gate(final JMenu circuit_menu) {
-		JMenuItem item_create_custom_gate = new JMenuItem("Create Custom Gate");
+		JMenuItem item_create_custom_gate = new JMenuItem(new AbstractAction("Create Custom Gate") {
+			private static final long serialVersionUID = 941467941132617522L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CustomGatePrompt prompt = new CustomGatePrompt(frame);
+				prompt.show();
+			}
+		});
 		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
 		circuit_menu.add(item_create_custom_gate);
 	}
