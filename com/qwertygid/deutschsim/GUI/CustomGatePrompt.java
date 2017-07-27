@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -16,19 +17,24 @@ public class CustomGatePrompt {
 		this.frame = frame;
 		panel = new JPanel(new BorderLayout());
 		
-		JTabbedPane tabbed_pane = new JTabbedPane(); //?
+		JTabbedPane tabbed_pane = new JTabbedPane();		
+		tabbed_pane.add("Rotation", create_rotation_panel());
 		
+		panel.add(tabbed_pane);
+	}
+	
+	public void show() {
+		JOptionPane.showOptionDialog(frame, panel, "Create Custom Gate", JOptionPane.OK_OPTION,
+				JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Create Gate"}, null);
+	}
+	
+	private JPanel create_rotation_panel() {
 		JPanel rotation_panel = new JPanel();
 		rotation_panel.setLayout(new BoxLayout(rotation_panel, BoxLayout.Y_AXIS));
 		
-		JTextField x_angle = new JTextField();
-		rotation_panel.add(x_angle);
-		
-		JTextField y_angle = new JTextField();
-		rotation_panel.add(y_angle);
-
-		JTextField z_angle = new JTextField();
-		rotation_panel.add(z_angle);
+		x_angle = add_one_line_input("X axis: ", rotation_panel);
+		y_angle = add_one_line_input("Y axis: ", rotation_panel);
+		z_angle = add_one_line_input("Z axis: ", rotation_panel);
 		
 		JPanel radio_buttons_panel = new JPanel();
 		radio_buttons_panel.setLayout(new BoxLayout(radio_buttons_panel, BoxLayout.X_AXIS));
@@ -45,16 +51,26 @@ public class CustomGatePrompt {
 		
 		rotation_panel.add(radio_buttons_panel);
 		
-		tabbed_pane.add("Rotation", rotation_panel);
-		
-		panel.add(tabbed_pane);
+		return rotation_panel;
 	}
 	
-	public void show() {
-		JOptionPane.showOptionDialog(frame, panel, "Create Custom Gate", JOptionPane.OK_OPTION,
-				JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Create Gate"}, null);
+	private JTextField add_one_line_input(final String label_text, final JPanel rotation_panel) {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		
+		JLabel label = new JLabel(label_text);
+		panel.add(label);
+		
+		JTextField text = new JTextField("0");
+		panel.add(text);
+		
+		rotation_panel.add(panel);
+		
+		return text;
 	}
 	
 	private final JFrame frame;
 	private final JPanel panel;
+	
+	private JTextField x_angle, y_angle, z_angle;
 }
