@@ -2,11 +2,13 @@ package com.qwertygid.deutschsim.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,10 +19,16 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-public class CustomGatePrompt {
+public class CustomGatePrompt extends JDialog {
+	private static final long serialVersionUID = -6362792305855466347L;
+
 	public CustomGatePrompt(final JFrame frame) {
+		super(frame, true);
+		
 		this.frame = frame;
 		
 		JTabbedPane tabbed_pane = new JTabbedPane();
@@ -28,12 +36,21 @@ public class CustomGatePrompt {
 		tabbed_pane.add("Phase Shift", create_phase_shift_panel());
 		tabbed_pane.add("Matrix", create_matrix_panel());
 		
+		tabbed_pane.addChangeListener(new TabbedPaneListener(tabbed_pane));
+		
 		option_pane = new JOptionPane(tabbed_pane, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION,
 				null, new Object[] {"Create Gate"});
+		
+		setTitle("Create Custom Gate");
+		setResizable(false);
+		setContentPane(option_pane);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		pack();
 	}
 	
-	public void show() {
-		option_pane.createDialog(frame, "Create Custom Gate").show();
+	public void show_prompt() {
+		setLocationRelativeTo(frame);
+		setVisible(true);
 	}
 	
 	private JPanel create_rotation_panel() {
@@ -78,7 +95,7 @@ public class CustomGatePrompt {
 		
 		JScrollPane scroll_pane = new JScrollPane();
 		
-		matrix = new TextEditor("Gate's Unitary Matrix Representation",
+		matrix = new TextEditor("Gate's unitary matrix representation",
 				TextEditor.Type.MULTIPLE_LINE);
 		scroll_pane.setViewportView(matrix);
 		
@@ -195,5 +212,35 @@ public class CustomGatePrompt {
 		}
 		
 		private JRadioButton degrees, radians;
+	}
+	
+	private static class TabbedPaneListener implements ChangeListener {
+		public TabbedPaneListener(final JTabbedPane tabbed_pane) {
+			this.tabbed_pane = tabbed_pane;
+			tabbed_pane_preferred_size = tabbed_pane.getPreferredSize();
+			last_height = get_selected_height();
+		}
+		
+		@Override
+		public void stateChanged(ChangeEvent ev) {
+			final int selected_height = get_selected_height();
+			
+			final Dimension new_dimension = new Dimension(
+					tabbed_pane_preferred_size.width,
+					tabbed_pane_preferred_size.height - last_height + selected_height);
+			tabbed_pane.setPreferredSize(new_dimension);
+			
+			last_height = selected_height;
+			
+			tabbed_pane.requestFocus();
+		}
+		
+		private int get_selected_height() {
+			return tabbed_pane.getSelectedComponent().getPreferredSize().height;
+		}
+		
+		private final JTabbedPane tabbed_pane;
+		private final Dimension tabbed_pane_preferred_size;
+		private int last_height;
 	}
 }

@@ -387,7 +387,7 @@ public class GUI {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				CustomGatePrompt prompt = new CustomGatePrompt(frame);
-				prompt.show();
+				prompt.show_prompt();
 			}
 		});
 		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
