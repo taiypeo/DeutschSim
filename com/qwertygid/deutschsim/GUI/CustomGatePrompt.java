@@ -2,7 +2,6 @@ package com.qwertygid.deutschsim.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -15,7 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -55,43 +53,44 @@ public class CustomGatePrompt extends JDialog {
 	
 	private JPanel create_rotation_panel() {
 		JPanel rotation_panel = new JPanel();
-		rotation_panel.setLayout(new BoxLayout(rotation_panel, BoxLayout.Y_AXIS));
+		rotation_panel.setLayout(new BorderLayout());
+		
+		JPanel text_editor_panel = new JPanel();
+		text_editor_panel.setLayout(new BoxLayout(text_editor_panel, BoxLayout.Y_AXIS));
 		
 		x_rot = new TextEditor("X axis rotation angle", TextEditor.Type.SINGLE_LINE);
-		rotation_panel.add(x_rot);
+		text_editor_panel.add(x_rot);
 		
 		y_rot = new TextEditor("Y axis rotation angle", TextEditor.Type.SINGLE_LINE);
-		rotation_panel.add(y_rot);
+		text_editor_panel.add(y_rot);
 		
 		z_rot = new TextEditor("Z axis rotation angle", TextEditor.Type.SINGLE_LINE);
-		rotation_panel.add(z_rot);
+		text_editor_panel.add(z_rot);
 		
-		rotation_panel.add(new JSeparator());
+		rotation_panel.add(text_editor_panel, BorderLayout.NORTH);
 		
 		rot_selection = new AngleTypeSelection("What to represent angles in?");
-		rotation_panel.add(rot_selection);
+		rotation_panel.add(rot_selection, BorderLayout.SOUTH);
 		
 		return rotation_panel;
 	}
 	
 	private JPanel create_phase_shift_panel() {
 		JPanel phase_shift_panel = new JPanel();
-		phase_shift_panel.setLayout(new BoxLayout(phase_shift_panel, BoxLayout.Y_AXIS));
+		phase_shift_panel.setLayout(new BorderLayout());
 		
 		phase = new TextEditor("Phase", TextEditor.Type.SINGLE_LINE);
-		phase_shift_panel.add(phase);
-		
-		phase_shift_panel.add(new JSeparator());
+		phase_shift_panel.add(phase, BorderLayout.NORTH);
 		
 		phase_selection = new AngleTypeSelection("What to represent phase in?");
-		phase_shift_panel.add(phase_selection);
+		phase_shift_panel.add(phase_selection, BorderLayout.SOUTH);
 		
 		return phase_shift_panel;
 	}
 	
 	private JPanel create_matrix_panel() {
 		JPanel matrix_panel = new JPanel();
-		matrix_panel.setLayout(new BoxLayout(matrix_panel, BoxLayout.Y_AXIS));
+		matrix_panel.setLayout(new BorderLayout());
 		
 		JScrollPane scroll_pane = new JScrollPane();
 		
@@ -99,13 +98,11 @@ public class CustomGatePrompt extends JDialog {
 				TextEditor.Type.MULTIPLE_LINE);
 		scroll_pane.setViewportView(matrix);
 		
-		matrix_panel.add(scroll_pane);
-		
-		matrix_panel.add(new JSeparator());
+		matrix_panel.add(scroll_pane, BorderLayout.CENTER);
 		
 		matrix_selection = new AngleTypeSelection("What to represent arguments of " + 
 				"trigonometric functions in?");
-		matrix_panel.add(matrix_selection);
+		matrix_panel.add(matrix_selection, BorderLayout.SOUTH);
 		
 		return matrix_panel;
 	}
@@ -217,30 +214,13 @@ public class CustomGatePrompt extends JDialog {
 	private static class TabbedPaneListener implements ChangeListener {
 		public TabbedPaneListener(final JTabbedPane tabbed_pane) {
 			this.tabbed_pane = tabbed_pane;
-			tabbed_pane_preferred_size = tabbed_pane.getPreferredSize();
-			last_height = get_selected_height();
 		}
 		
 		@Override
-		public void stateChanged(ChangeEvent ev) {
-			final int selected_height = get_selected_height();
-			
-			final Dimension new_dimension = new Dimension(
-					tabbed_pane_preferred_size.width,
-					tabbed_pane_preferred_size.height - last_height + selected_height);
-			tabbed_pane.setPreferredSize(new_dimension);
-			
-			last_height = selected_height;
-			
+		public void stateChanged(ChangeEvent ev) {			
 			tabbed_pane.requestFocus();
 		}
 		
-		private int get_selected_height() {
-			return tabbed_pane.getSelectedComponent().getPreferredSize().height;
-		}
-		
 		private final JTabbedPane tabbed_pane;
-		private final Dimension tabbed_pane_preferred_size;
-		private int last_height;
 	}
 }
