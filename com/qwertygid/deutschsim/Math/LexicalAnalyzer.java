@@ -15,22 +15,22 @@ public class LexicalAnalyzer {
 				continue;
 			} else if (Character.isDigit(current_char))
 				return integer_token();
-			else if (is_string_token("sqrt")) {
+			else if (is_next_string_token("sqrt")) {
 				current_position += "sqrt".length();
 				return new Token(Token.Type.SQRT);
-			} else if (is_string_token("sin")) {
+			} else if (is_next_string_token("sin")) {
 				current_position += "sin".length();
 				return new Token(Token.Type.SIN);
-			} else if (is_string_token("cos")) {
+			} else if (is_next_string_token("cos")) {
 				current_position += "cos".length();
 				return new Token(Token.Type.COS);
-			} else if (is_string_token("tan")) {
+			} else if (is_next_string_token("tan")) {
 				current_position += "tan".length();
 				return new Token(Token.Type.TAN);
-			} else if (is_string_token("cot")) {
+			} else if (is_next_string_token("cot")) {
 				current_position += "cot".length();
 				return new Token(Token.Type.COT);
-			} else if (is_string_token("pi")) {
+			} else if (is_next_string_token("pi")) {
 				current_position += "pi".length();
 				return new Token(Token.Type.PI);
 			} else {
@@ -56,6 +56,8 @@ public class LexicalAnalyzer {
 					return new Token(Token.Type.I);
 				else if (current_char == 'e')
 					return new Token(Token.Type.E);
+				else
+					throw new IllegalArgumentException("Unknown character found");
 			}
 		}
 		
@@ -78,7 +80,7 @@ public class LexicalAnalyzer {
 		return new Token(Token.Type.INTEGER, Integer.parseInt(result.toString()));
 	}
 	
-	private boolean is_string_token(final String str) {
+	private boolean is_next_string_token(final String str) {
 		return expression.substring(current_position).startsWith(str.toLowerCase());
 	}
 	
