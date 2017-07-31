@@ -1,6 +1,7 @@
 package com.qwertygid.deutschsim.Math;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.FastMath;
 
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
@@ -104,6 +105,10 @@ public class Interpreter {
 		Complex value = sum();
 		switch (func) {
 		case SQRT:
+			if (Tools.equal(value.getImaginary(), 0.0) &&
+					FastMath.copySign(1.0, value.getImaginary()) < 0.0) // check for negative zero in the imaginary part
+				value = new Complex(value.getReal());
+			
 			value = value.sqrt();
 			break;
 		case SIN:
