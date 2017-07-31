@@ -23,6 +23,13 @@ public class Tools {
 		return Math.abs(a - b) < EPSILON;
 	}
 	
+	public static double round_if_needed(final double a) {
+		if (Tools.equal(a, Math.round(a)))
+			return Math.round(a);
+		
+		return a;
+	}
+	
 	public static void error(final JFrame frame, final String msg) {
 		JOptionPane.showMessageDialog(frame, msg,
 				"Error", JOptionPane.ERROR_MESSAGE);

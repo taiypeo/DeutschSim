@@ -320,8 +320,7 @@ public class GUI {
 							continue;
 						
 						double current_percentage = Math.pow(current_magnitude, 2) * 100;
-						if (Tools.equal(current_percentage, Math.round(current_percentage)))
-							current_percentage = Math.round(current_percentage);
+						current_percentage = Tools.round_if_needed(current_percentage);
 						
 						StringBuilder qubits_values = new StringBuilder(Integer.toBinaryString(index));
 						for (int length = qubits_values.length(); length < qubits_number; length++)
@@ -387,7 +386,9 @@ public class GUI {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				CustomGatePrompt prompt = new CustomGatePrompt(frame);
-				prompt.show_prompt();
+				Gate gate = prompt.show_prompt();
+				if (gate != null)
+					((DefaultListModel<Gate>) gate_list.getModel()).addElement(gate);
 			}
 		});
 		item_create_custom_gate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));

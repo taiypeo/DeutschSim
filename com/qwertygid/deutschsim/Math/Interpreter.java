@@ -6,11 +6,13 @@ import org.apache.commons.math3.util.FastMath;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class Interpreter {
-	public Interpreter(final LexicalAnalyzer analyzer, final Tools.AngleType angle_type) {
+	public Interpreter(final Tools.AngleType angle_type) {		
+		this.angle_type = angle_type;
+	}
+	
+	public void set_lexical_analyzer(final LexicalAnalyzer analyzer) {
 		this.analyzer = analyzer;
 		current = analyzer.get_next_token();
-		
-		this.angle_type = angle_type;
 	}
 	
 	public Complex interpret() {
@@ -21,10 +23,8 @@ public class Interpreter {
 		
 		double real = value.getReal(), imag = value.getImaginary();
 		
-		if (Tools.equal(real, Math.round(real)))
-			real = Math.round(real);
-		if (Tools.equal(imag, Math.round(imag)))
-			imag = Math.round(imag);
+		real = Tools.round_if_needed(real);
+		imag = Tools.round_if_needed(imag);
 		
 		return new Complex(real, imag);
 	}
@@ -202,7 +202,7 @@ public class Interpreter {
 		return angle;
 	}
 	
-	private final LexicalAnalyzer analyzer;
 	private final Tools.AngleType angle_type;
+	private LexicalAnalyzer analyzer;
 	private Token current;
 }

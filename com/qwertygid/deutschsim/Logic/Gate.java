@@ -10,32 +10,32 @@ import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class Gate {
 	// Rotation constructor
-	public Gate(final String id, double angle_x, double angle_y, double angle_z, final boolean in_degrees)
+	public Gate(final String id, double angle_x, double angle_y, double angle_z, final Tools.AngleType angle_type)
 	{
 		this.id = id;
 		this.IO_ports = 1;
 		
-		if (in_degrees) {
+		if (angle_type == Tools.AngleType.DEGREES) {
 			angle_x = Math.toRadians(angle_x);
 			angle_y = Math.toRadians(angle_y);
 			angle_z = Math.toRadians(angle_z);
 		}
 		
 		Complex[][] data_x_rot = new Complex[][] {
-			{new Complex(Math.cos(angle_x / 2)), new Complex(0.0, -Math.sin(angle_x / 2))},
-			{new Complex(0.0, -Math.sin(angle_x / 2)), new Complex(Math.cos(angle_x / 2))}
+			{new Complex(Tools.round_if_needed(Math.cos(angle_x / 2))), new Complex(0.0, Tools.round_if_needed(-Math.sin(angle_x / 2)))},
+			{new Complex(0.0, Tools.round_if_needed(-Math.sin(angle_x / 2))), new Complex(Tools.round_if_needed(Math.cos(angle_x / 2)))}
 		};
 		FieldMatrix<Complex> x_rot = new Array2DRowFieldMatrix<Complex>(data_x_rot);
 		
 		Complex[][] data_y_rot = new Complex[][] {
-			{new Complex(Math.cos(angle_y / 2)), new Complex(-Math.sin(angle_y / 2))},
-			{new Complex(Math.sin(angle_y / 2)), new Complex(Math.cos(angle_y / 2))}
+			{new Complex(Tools.round_if_needed(Math.cos(angle_y / 2))), new Complex(Tools.round_if_needed(-Math.sin(angle_y / 2)))},
+			{new Complex(Tools.round_if_needed(Math.sin(angle_y / 2))), new Complex(Tools.round_if_needed(Math.cos(angle_y / 2)))}
 		};
 		FieldMatrix<Complex> y_rot = new Array2DRowFieldMatrix<Complex>(data_y_rot);
 		
 		Complex[][] data_z_rot = new Complex[][] {
-			{new Complex(Math.cos(angle_z / 2), -Math.sin(angle_z / 2)), new Complex(0.0)},
-			{new Complex(0.0), new Complex(Math.cos(angle_z / 2), Math.sin(angle_z / 2))}
+			{new Complex(Tools.round_if_needed(Math.cos(angle_z / 2)), Tools.round_if_needed(-Math.sin(angle_z / 2))), new Complex(0.0)},
+			{new Complex(0.0), new Complex(Tools.round_if_needed(Math.cos(angle_z / 2)), Tools.round_if_needed(Math.sin(angle_z / 2)))}
 		};
 		FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
 		
@@ -47,16 +47,16 @@ public class Gate {
 	}
 	
 	// Phase shift constructor
-	public Gate(final String id, double angle, final boolean in_degrees) {
+	public Gate(final String id, double angle, final Tools.AngleType angle_type) {
 		this.id = id;
 		this.IO_ports = 1;
 		
-		if (in_degrees)
+		if (angle_type == Tools.AngleType.DEGREES)
 			angle = Math.toRadians(angle);
 		
 		Complex[][] data = new Complex[][] {
 				{new Complex(1), new Complex(0)},
-				{new Complex(0), new Complex(Math.cos(angle), Math.sin(angle))}
+				{new Complex(0), new Complex(Tools.round_if_needed(Math.cos(angle)), Tools.round_if_needed(Math.sin(angle)))}
 		};
 		
 		mat = new Array2DRowFieldMatrix<Complex>(data);
