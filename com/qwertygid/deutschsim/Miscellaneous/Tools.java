@@ -13,6 +13,10 @@ public class Tools {
 	
 	public static final Font gate_font = new Font("Tahoma", Font.PLAIN, 20);
 	
+	public enum AngleType {
+		DEGREES, RADIANS
+	}
+	
 	public static boolean equal(final double a, final double b) {
 		final double EPSILON = 0.00000001;
 		

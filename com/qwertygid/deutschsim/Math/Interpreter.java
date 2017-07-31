@@ -6,9 +6,11 @@ import org.apache.commons.math3.util.FastMath;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class Interpreter {
-	public Interpreter(final LexicalAnalyzer analyzer) {
+	public Interpreter(final LexicalAnalyzer analyzer, final Tools.AngleType angle_type) {
 		this.analyzer = analyzer;
 		current = analyzer.get_next_token();
+		
+		this.angle_type = angle_type;
 	}
 	
 	public Complex interpret() {
@@ -112,16 +114,16 @@ public class Interpreter {
 			value = value.sqrt();
 			break;
 		case SIN:
-			value = value.sin();
+			value = convert_to_radians(value).sin();
 			break;
 		case COS:
-			value = value.cos();
+			value = convert_to_radians(value).cos();
 			break;
 		case TAN:
-			value = value.tan();
+			value = convert_to_radians(value).tan();
 			break;
 		default:
-			value = value.tan().reciprocal();	
+			value = convert_to_radians(value).tan().reciprocal();	
 		}
 		
 		eat(Token.Type.RPAREN);
@@ -192,6 +194,15 @@ public class Interpreter {
 		return lhs;
 	}
 	
+	private Complex convert_to_radians(final Complex angle) {
+		if (angle_type == Tools.AngleType.DEGREES)
+			return new Complex(Math.toRadians(angle.getReal()),
+					Math.toRadians(angle.getImaginary()));
+		
+		return angle;
+	}
+	
 	private final LexicalAnalyzer analyzer;
+	private final Tools.AngleType angle_type;
 	private Token current;
 }

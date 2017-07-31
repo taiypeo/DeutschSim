@@ -21,6 +21,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
+import com.qwertygid.deutschsim.Miscellaneous.Tools;
+
 public class CustomGatePrompt extends JDialog {
 	private static final long serialVersionUID = -6362792305855466347L;
 
@@ -29,14 +31,22 @@ public class CustomGatePrompt extends JDialog {
 		
 		this.frame = frame;
 		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		
 		JTabbedPane tabbed_pane = new JTabbedPane();
 		tabbed_pane.add("Rotation", create_rotation_panel());
 		tabbed_pane.add("Phase Shift", create_phase_shift_panel());
 		tabbed_pane.add("Matrix", create_matrix_panel());
 		
 		tabbed_pane.addChangeListener(new TabbedPaneListener(tabbed_pane));
+		panel.add(tabbed_pane);
 		
-		option_pane = new JOptionPane(tabbed_pane, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION,
+		matrix_selection = new AngleTypeSelection("What to represent arguments of " + 
+				"trigonometric functions in?");
+		panel.add(matrix_selection);
+		
+		option_pane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION,
 				null, new Object[] {"Create Gate"});
 		
 		setTitle("Create Custom Gate");
@@ -99,10 +109,6 @@ public class CustomGatePrompt extends JDialog {
 		scroll_pane.setViewportView(matrix);
 		
 		matrix_panel.add(scroll_pane, BorderLayout.CENTER);
-		
-		matrix_selection = new AngleTypeSelection("What to represent arguments of " + 
-				"trigonometric functions in?");
-		matrix_panel.add(matrix_selection, BorderLayout.SOUTH);
 		
 		return matrix_panel;
 	}
@@ -176,10 +182,6 @@ public class CustomGatePrompt extends JDialog {
 	
 	private static class AngleTypeSelection extends JPanel{
 		private static final long serialVersionUID = 3493671236699868365L;
-
-		public enum Type {
-			DEGREES, RADIANS
-		}
 		
 		public AngleTypeSelection(final String question) {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -193,22 +195,22 @@ public class CustomGatePrompt extends JDialog {
 			
 			ButtonGroup group = new ButtonGroup();
 			
-			degrees = new JRadioButton("Degrees", true);
-			group.add(degrees);
-			buttons_panel.add(degrees);
-			
-			radians = new JRadioButton("Radians", false);
+			radians = new JRadioButton("Radians", true);
 			group.add(radians);
 			buttons_panel.add(radians);
+			
+			degrees = new JRadioButton("Degrees", false);
+			group.add(degrees);
+			buttons_panel.add(degrees);
 			
 			add(buttons_panel);
 		}
 		
-		public Type get_selected_type() {
-			return degrees.isSelected() ? Type.DEGREES : Type.RADIANS;
+		public Tools.AngleType get_selected_type() {
+			return degrees.isSelected() ? Tools.AngleType.DEGREES : Tools.AngleType.RADIANS;
 		}
 		
-		private JRadioButton degrees, radians;
+		private JRadioButton radians, degrees;
 	}
 	
 	private static class TabbedPaneListener implements ChangeListener {
