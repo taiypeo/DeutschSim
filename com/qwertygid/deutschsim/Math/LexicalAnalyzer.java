@@ -77,7 +77,7 @@ public class LexicalAnalyzer {
 				current_position++)
 			result.append(expression.charAt(current_position));
 		
-		return new Token(Token.Type.INTEGER, Integer.parseInt(result.toString()));
+		return new Token(Token.Type.INTEGER, result.toString());
 	}
 	
 	private boolean is_next_string_token(final String str) {

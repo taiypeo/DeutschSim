@@ -10,14 +10,14 @@ public class Token {
 	
 	public Token(final Type type) {
 		this.type = type;
-		value = Integer.MIN_VALUE;
+		value = "";
 	}
 	
-	public Token(final Type type, final int value) {
+	public Token(final Type type, final String value) {
 		this.type = type;
 		this.value = value;
 	}
 	
 	public final Type type;
-	public final int value;
+	public final String value;
 }
