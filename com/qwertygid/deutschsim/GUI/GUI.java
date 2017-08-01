@@ -326,8 +326,8 @@ public class GUI {
 						for (int length = qubits_values.length(); length < qubits_number; length++)
 							qubits_values.insert(0, '0');
 						
-						text.append(current.getReal() + (current.getImaginary() < 0 ? "" : "+") +
-								current.getImaginary() + "i |" + qubits_values + ">\t" +
+						text.append(Tools.round_if_needed(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
+								Tools.round_if_needed(current.getImaginary()) + "i |" + qubits_values + ">\t" +
 								current_percentage + "% chance\n");
 					}
 					

@@ -39,7 +39,7 @@ public class Gate {
 		};
 		FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
 		
-		mat = x_rot.multiply(y_rot).multiply(z_rot);
+		mat = z_rot.multiply(y_rot).multiply(x_rot);
 		
 		if (!valid())
 			throw new RuntimeException(
