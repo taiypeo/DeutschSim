@@ -269,7 +269,7 @@ public class CustomGatePrompt extends JDialog {
 				if (selected_panel == rotation_panel)
 					create_rotation_gate(interpreter);
 				else if (selected_panel == phase_shift_panel) {
-					
+					create_phase_shift_gate(interpreter);
 				} else if (selected_panel == matrix_panel) {
 					
 				} else
@@ -277,9 +277,7 @@ public class CustomGatePrompt extends JDialog {
 			}
 		}
 		
-		private void create_rotation_gate(final Interpreter interpreter) {
-			Complex x_rot_complex, y_rot_complex, z_rot_complex;
-			
+		private void create_rotation_gate(final Interpreter interpreter) {	
 			String x_rot_text = x_rot.get_text(), y_rot_text = y_rot.get_text(),
 					z_rot_text = z_rot.get_text();
 			if (x_rot_text.equals("X axis rotation angle"))
@@ -289,6 +287,7 @@ public class CustomGatePrompt extends JDialog {
 			if (z_rot_text.equals("Z axis rotation angle"))
 				z_rot_text = "0";
 			
+			Complex x_rot_complex, y_rot_complex, z_rot_complex;			
 			try {
 				interpreter.set_lexical_analyzer(new LexicalAnalyzer(x_rot_text));
 				x_rot_complex = interpreter.interpret();
@@ -314,7 +313,7 @@ public class CustomGatePrompt extends JDialog {
 			if (!Tools.equal(x_rot_complex.getImaginary(), 0.0)
 					|| !Tools.equal(y_rot_complex.getImaginary(), 0.0)
 					|| !Tools.equal(z_rot_complex.getImaginary(), 0.0)) {
-				Tools.error(frame, "Cannot use complex numbers as rotation angles");
+				Tools.error(frame, "Rotation angles cannot be complex numbers");
 				return;
 			}
 			
@@ -329,6 +328,47 @@ public class CustomGatePrompt extends JDialog {
 			try {
 				result_gate = new Gate(name, x_rot_angle, y_rot_angle,
 						z_rot_angle, rot_selection.get_selected_type());
+			} catch (RuntimeException ex) {
+				Tools.error(frame, "A runtime exception has been caught:\n" +
+						ex.getMessage());
+				return;
+			}
+			
+			dispose();
+		}
+		
+		private void create_phase_shift_gate(final Interpreter interpreter) {
+			String phase_text = phase.get_text();
+			if (phase_text.equals("Phase"))
+				phase_text = "0";
+			
+			Complex phase_complex;
+			try {
+				interpreter.set_lexical_analyzer(new LexicalAnalyzer(phase_text));
+				phase_complex = interpreter.interpret();
+			} catch (RuntimeException ex) {
+				Tools.error(frame, "A runtime exception has been caught:\n" +
+						ex.getMessage());
+				return;
+			}
+			
+			if (phase_complex.equals(Complex.ZERO)) {
+				dispose();
+				return;
+			}
+			
+			if (!Tools.equal(phase_complex.getImaginary(), 0.0)) {
+				Tools.error(frame, "Phase cannot be a complex number");
+				return;
+			}
+			
+			String name = gate_name.get_text();
+			if (name.equals("Gate name"))
+				name = "G";
+			
+			final double phase_shift = Tools.round_if_needed(phase_complex.getReal());
+			try {
+				result_gate = new Gate(name, phase_shift, phase_selection.get_selected_type());
 			} catch (RuntimeException ex) {
 				Tools.error(frame, "A runtime exception has been caught:\n" +
 						ex.getMessage());
