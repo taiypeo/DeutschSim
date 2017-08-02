@@ -7,6 +7,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -25,6 +28,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
+import org.apache.commons.math3.linear.FieldMatrix;
 
 import com.qwertygid.deutschsim.Logic.Gate;
 import com.qwertygid.deutschsim.Math.Interpreter;
@@ -119,6 +124,9 @@ public class CustomGatePrompt extends JDialog {
 		matrix_panel = new JPanel();
 		matrix_panel.setLayout(new BorderLayout());
 		
+		matrix_factor = new TextEditor("Matrix scalar factor", TextEditor.Type.SINGLE_LINE);
+		matrix_panel.add(matrix_factor, BorderLayout.NORTH);
+		
 		JScrollPane scroll_pane = new JScrollPane();
 		
 		matrix = new TextEditor("Gate's unitary matrix representation",
@@ -144,6 +152,7 @@ public class CustomGatePrompt extends JDialog {
 	private AngleTypeSelection phase_selection;
 	
 	private JPanel matrix_panel;
+	private TextEditor matrix_factor;
 	private TextEditor matrix;
 	
 	private AngleTypeSelection trig_selection;
@@ -263,21 +272,19 @@ public class CustomGatePrompt extends JDialog {
 					return;
 				option_pane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 				
-				final Interpreter interpreter = new Interpreter(trig_selection.get_selected_type());
-				
 				final Component selected_panel = tabbed_pane.getSelectedComponent();
 				if (selected_panel == rotation_panel)
-					create_rotation_gate(interpreter);
+					create_rotation_gate();
 				else if (selected_panel == phase_shift_panel) {
-					create_phase_shift_gate(interpreter);
+					create_phase_shift_gate();
 				} else if (selected_panel == matrix_panel) {
-					
+					create_matrix_gate();
 				} else
 					throw new RuntimeException("Selected tab is not listed in the tabbed panel");
 			}
 		}
 		
-		private void create_rotation_gate(final Interpreter interpreter) {	
+		private void create_rotation_gate() {	
 			String x_rot_text = x_rot.get_text(), y_rot_text = y_rot.get_text(),
 					z_rot_text = z_rot.get_text();
 			if (x_rot_text.equals("X axis rotation angle"))
@@ -289,6 +296,8 @@ public class CustomGatePrompt extends JDialog {
 			
 			Complex x_rot_complex, y_rot_complex, z_rot_complex;			
 			try {
+				final Interpreter interpreter = new Interpreter(trig_selection.get_selected_type());
+				
 				interpreter.set_lexical_analyzer(new LexicalAnalyzer(x_rot_text));
 				x_rot_complex = interpreter.interpret();
 				
@@ -337,13 +346,15 @@ public class CustomGatePrompt extends JDialog {
 			dispose();
 		}
 		
-		private void create_phase_shift_gate(final Interpreter interpreter) {
+		private void create_phase_shift_gate() {
 			String phase_text = phase.get_text();
 			if (phase_text.equals("Phase"))
 				phase_text = "0";
 			
 			Complex phase_complex;
 			try {
+				final Interpreter interpreter = new Interpreter(trig_selection.get_selected_type());
+				
 				interpreter.set_lexical_analyzer(new LexicalAnalyzer(phase_text));
 				phase_complex = interpreter.interpret();
 			} catch (RuntimeException ex) {
@@ -369,6 +380,70 @@ public class CustomGatePrompt extends JDialog {
 			final double phase_shift = Tools.round_if_needed(phase_complex.getReal());
 			try {
 				result_gate = new Gate(name, phase_shift, phase_selection.get_selected_type());
+			} catch (RuntimeException ex) {
+				Tools.error(frame, "A runtime exception has been caught:\n" +
+						ex.getMessage());
+				return;
+			}
+			
+			dispose();
+		}
+		
+		private void create_matrix_gate() {
+			String factor_text = matrix_factor.get_text();
+			if (factor_text.equals("Matrix scalar factor"))
+				factor_text = "1";
+			
+			String matrix_text_string = matrix.get_text();
+			if (matrix_text_string.equals("Gate's unitary matrix representation")) {
+				dispose();
+				return;
+			}
+			
+			List<String> matrix_text = Arrays.asList(matrix.get_text().
+					replaceAll("\\s", "").split(","));
+			if (matrix_text.size() == 0) {
+				dispose();
+				return;
+			}
+			
+			final int matrix_dimension = (int) Math.round(Math.sqrt(matrix_text.size()));
+			if (Math.pow(matrix_dimension, 2) != matrix_text.size()) {
+				Tools.error(frame, "Provided matrix is not square");
+				return;
+			}
+			
+			Complex factor_complex;
+			FieldMatrix<Complex> gate_matrix;
+			try {
+				final Interpreter interpreter = new Interpreter(trig_selection.get_selected_type());
+				
+				interpreter.set_lexical_analyzer(new LexicalAnalyzer(factor_text));
+				factor_complex = interpreter.interpret();
+				
+				Complex[][] matrix_data = new Complex[matrix_dimension][matrix_dimension];
+				for (int row = 0; row < matrix_dimension; row++)
+					for (int col = 0; col < matrix_dimension; col++) {
+						interpreter.set_lexical_analyzer(new LexicalAnalyzer(matrix_text.
+								get(row * matrix_dimension + col)));
+						matrix_data[row][col] = interpreter.interpret();
+					}
+				
+				gate_matrix = new Array2DRowFieldMatrix<Complex>(matrix_data);
+			} catch (RuntimeException ex) {
+				Tools.error(frame, "A runtime exception has been caught:\n" +
+						ex.getMessage());
+				return;
+			}
+			
+			gate_matrix = gate_matrix.scalarMultiply(factor_complex);
+			
+			String name = gate_name.get_text();
+			if (name.equals("Gate name"))
+				name = "G";
+			
+			try {
+				result_gate = new Gate(name, gate_matrix);
 			} catch (RuntimeException ex) {
 				Tools.error(frame, "A runtime exception has been caught:\n" +
 						ex.getMessage());
