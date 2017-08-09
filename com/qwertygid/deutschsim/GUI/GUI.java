@@ -53,6 +53,15 @@ public class GUI {
 		
 		setup();
 		frame.setVisible(true);
+		
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				Tools.error(frame, "An uncaught exception has slipped through! Report this, please.\n" +
+								e.getMessage());
+				System.out.println(t.getName());
+			}
+		});
 	}
 	
 	public void setup() {			
