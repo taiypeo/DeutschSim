@@ -59,7 +59,6 @@ public class GUI {
 			public void uncaughtException(Thread t, Throwable e) {
 				Tools.error(frame, "An uncaught exception has slipped through! Report this, please.\n" +
 								e.getMessage());
-				System.out.println(t.getName());
 			}
 		});
 	}

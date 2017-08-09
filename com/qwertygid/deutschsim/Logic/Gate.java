@@ -72,7 +72,7 @@ public class Gate {
 	
 	public Gate(final String id, final FieldMatrix<Complex> mat) {
 		this.id = id;
-		this.IO_ports = mat.getColumnDimension() / 2;
+		this.IO_ports = (int) (Math.log(mat.getColumnDimension()) / Math.log(2));
 		this.mat = mat;
 		
 		if (!valid())
@@ -92,7 +92,8 @@ public class Gate {
 		if (mat.equals(control))
 			return true;
 		
-		if (!mat.isSquare() || mat.getColumnDimension() % 2 != 0)
+		final boolean is_dimension_power_of_2 = (mat.getColumnDimension() & (mat.getColumnDimension() - 1)) == 0;
+		if (!mat.isSquare() || !is_dimension_power_of_2)
 			return false;
 		
 		// Computes dagger of mat
