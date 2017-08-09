@@ -164,21 +164,27 @@ public class GateTable extends JPanel{
 				final int row = last_mouse_point.y / table.get_gate_table_row_height(),
 						col = last_mouse_point.x / table.get_gate_table_col_width();
 				
-				if (table.get_table().get_element(row, col) != null) {
-					table.get_table().remove_element(row, col);
-					
-					if (table.get_table().get_col_count() > 1 &&
-							col == table.get_table().get_col_count() - 2 &&
-							table.get_table().is_col_empty(col)) {
-						
-						// Delete unnecessary empty columns
-						for (int current_col = col; current_col >= 0; current_col--)
-							if (table.get_table().is_col_empty(current_col))
-								table.get_table().remove_last_col();
-							else
-								break;
-						
-						table.update_size();
+				for (int first_row = row; first_row >= 0; first_row--) {
+					final Gate current = table.get_table().get_element(first_row, col);
+					if (current != null && row - first_row + 1 <= current.get_ports_number()) {
+						table.get_table().remove_element(first_row, col);
+							
+						if (table.get_table().get_col_count() > 1 &&
+								col == table.get_table().get_col_count() - 2 &&
+								table.get_table().is_col_empty(col)) {
+								
+							// Delete unnecessary empty columns
+							for (int current_col = col; current_col >= 0; current_col--)
+								if (table.get_table().is_col_empty(current_col))
+									table.get_table().remove_last_col();
+								else
+									break;
+								
+							table.update_size();
+						}	
+							
+						table.repaint();
+						break;
 					}
 				}
 				
