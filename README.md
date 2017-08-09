@@ -14,6 +14,7 @@ _Bell state simulation demonstration_
    * Rotations
    * Phase shifts
    * Matrices
+* No installation needed, just fetch the latest release from the releases page
 * Works on everything that supports Java and Swing
 
 ## Dependencies
