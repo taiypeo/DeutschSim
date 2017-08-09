@@ -72,7 +72,7 @@ public class Gate {
 	
 	public Gate(final String id, final FieldMatrix<Complex> mat) {
 		this.id = id;
-		this.IO_ports = (int) (Math.log(mat.getColumnDimension()) / Math.log(2));
+		this.IO_ports = (int) (Math.log(mat.getColumnDimension()) / Math.log(2)); // Get base-2 logarithm of mat.getColumnDimension()
 		this.mat = mat;
 		
 		if (!valid())
