@@ -22,20 +22,20 @@ public class Gate {
 		}
 		
 		Complex[][] data_x_rot = new Complex[][] {
-			{new Complex(Tools.round_if_needed(Math.cos(angle_x / 2))), new Complex(0.0, Tools.round_if_needed(-Math.sin(angle_x / 2)))},
-			{new Complex(0.0, Tools.round_if_needed(-Math.sin(angle_x / 2))), new Complex(Tools.round_if_needed(Math.cos(angle_x / 2)))}
+			{new Complex(Tools.round(Math.cos(angle_x / 2))), new Complex(0.0, Tools.round(-Math.sin(angle_x / 2)))},
+			{new Complex(0.0, Tools.round(-Math.sin(angle_x / 2))), new Complex(Tools.round(Math.cos(angle_x / 2)))}
 		};
 		FieldMatrix<Complex> x_rot = new Array2DRowFieldMatrix<Complex>(data_x_rot);
 		
 		Complex[][] data_y_rot = new Complex[][] {
-			{new Complex(Tools.round_if_needed(Math.cos(angle_y / 2))), new Complex(Tools.round_if_needed(-Math.sin(angle_y / 2)))},
-			{new Complex(Tools.round_if_needed(Math.sin(angle_y / 2))), new Complex(Tools.round_if_needed(Math.cos(angle_y / 2)))}
+			{new Complex(Tools.round(Math.cos(angle_y / 2))), new Complex(Tools.round(-Math.sin(angle_y / 2)))},
+			{new Complex(Tools.round(Math.sin(angle_y / 2))), new Complex(Tools.round(Math.cos(angle_y / 2)))}
 		};
 		FieldMatrix<Complex> y_rot = new Array2DRowFieldMatrix<Complex>(data_y_rot);
 		
 		Complex[][] data_z_rot = new Complex[][] {
-			{new Complex(Tools.round_if_needed(Math.cos(angle_z / 2)), Tools.round_if_needed(-Math.sin(angle_z / 2))), new Complex(0.0)},
-			{new Complex(0.0), new Complex(Tools.round_if_needed(Math.cos(angle_z / 2)), Tools.round_if_needed(Math.sin(angle_z / 2)))}
+			{new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(-Math.sin(angle_z / 2))), new Complex(0.0)},
+			{new Complex(0.0), new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(Math.sin(angle_z / 2)))}
 		};
 		FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
 		
@@ -56,7 +56,7 @@ public class Gate {
 		
 		Complex[][] data = new Complex[][] {
 				{new Complex(1), new Complex(0)},
-				{new Complex(0), new Complex(Tools.round_if_needed(Math.cos(angle)), Tools.round_if_needed(Math.sin(angle)))}
+				{new Complex(0), new Complex(Tools.round(Math.cos(angle)), Tools.round(Math.sin(angle)))}
 		};
 		
 		mat = new Array2DRowFieldMatrix<Complex>(data);

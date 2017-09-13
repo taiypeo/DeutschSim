@@ -23,8 +23,8 @@ public class Interpreter {
 		
 		double real = value.getReal(), imag = value.getImaginary();
 		
-		real = Tools.round_if_needed(real);
-		imag = Tools.round_if_needed(imag);
+		real = Tools.round(real);
+		imag = Tools.round(imag);
 		
 		return new Complex(real, imag);
 	}

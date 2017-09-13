@@ -7,7 +7,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -330,9 +329,9 @@ public class CustomGatePrompt extends JDialog {
 			if (name.equals("Gate name"))
 				name = "G";
 			
-			final double x_rot_angle = Tools.round_if_needed(x_rot_complex.getReal()),
-					y_rot_angle = Tools.round_if_needed(y_rot_complex.getReal()),
-					z_rot_angle = Tools.round_if_needed(z_rot_complex.getReal());
+			final double x_rot_angle = x_rot_complex.getReal(),
+					y_rot_angle = y_rot_complex.getReal(),
+					z_rot_angle = z_rot_complex.getReal();
 			
 			try {
 				result_gate = new Gate(name, x_rot_angle, y_rot_angle,
@@ -377,7 +376,7 @@ public class CustomGatePrompt extends JDialog {
 			if (name.equals("Gate name"))
 				name = "G";
 			
-			final double phase_shift = Tools.round_if_needed(phase_complex.getReal());
+			final double phase_shift = phase_complex.getReal();
 			try {
 				result_gate = new Gate(name, phase_shift, phase_selection.get_selected_type());
 			} catch (RuntimeException ex) {

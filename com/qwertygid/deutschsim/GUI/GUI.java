@@ -328,14 +328,14 @@ public class GUI {
 							continue;
 						
 						double current_percentage = Math.pow(current_magnitude, 2) * 100;
-						current_percentage = Tools.round_if_needed(current_percentage);
+						current_percentage = Tools.round(current_percentage);
 						
 						StringBuilder qubits_values = new StringBuilder(Integer.toBinaryString(index));
 						for (int length = qubits_values.length(); length < qubits_number; length++)
 							qubits_values.insert(0, '0');
 						
-						text.append(Tools.round_if_needed(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
-								Tools.round_if_needed(current.getImaginary()) + "i |" + qubits_values + ">\t" +
+						text.append(Tools.round(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
+								Tools.round(current.getImaginary()) + "i |" + qubits_values + ">\t" +
 								current_percentage + "% chance\n");
 					}
 					
