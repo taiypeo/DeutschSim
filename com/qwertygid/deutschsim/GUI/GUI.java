@@ -157,6 +157,7 @@ public class GUI {
 		
 		result_text_pane = new JTextPane();
 		result_text_pane.setEditable(false);
+		result_text_pane.setContentType("text/html");
 		result_panel.add(result_text_pane);
 		
 		JPanel checkbox_panel = new JPanel();
@@ -317,7 +318,7 @@ public class GUI {
 					Circuit circuit = new Circuit(gate_table.get_table());
 					FieldVector<Complex> results = circuit.operate(qubit_table.get_qubits());
 					
-					StringBuilder text = new StringBuilder("Simulation results:\n");
+					StringBuilder text = new StringBuilder("<html>Simulation results:<table border=\"0\">");
 					
 					final int qubits_number = Integer.toBinaryString(results.getDimension() - 1).length();
 					for (int index = 0; index < results.getDimension(); index++) {
@@ -334,13 +335,13 @@ public class GUI {
 						for (int length = qubits_values.length(); length < qubits_number; length++)
 							qubits_values.insert(0, '0');
 						
-						text.append(Tools.round(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
-								Tools.round(current.getImaginary()) + "i |" + qubits_values + ">\t" +
-								current_percentage + "% chance\n");
+						text.append("<tr><td>" + Tools.round(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
+								Tools.round(current.getImaginary()) + "i |" + qubits_values + "></td><td>" +
+								current_percentage + "% chance</td></tr>");
 					}
 					
+					text.append("</table></html>");
 					result_text_pane.setText(text.toString());
-					
 				} catch (RuntimeException ex) {
 					Tools.error(frame, "A runtime exception has been caught:\n" + ex.getMessage());
 					ex.printStackTrace();
