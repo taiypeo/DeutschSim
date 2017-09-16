@@ -90,7 +90,7 @@ public class GUI {
 		circuit_menu.addSeparator();
 		add_item_create_custom_gate(circuit_menu);
 		
-		JMenu help_menu = create_menu("Help", menu_bar);;
+		JMenu help_menu = create_menu("Help", menu_bar);
 		add_item_about(help_menu);
 	}
 	
