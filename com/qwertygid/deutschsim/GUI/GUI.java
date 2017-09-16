@@ -318,7 +318,7 @@ public class GUI {
 					Circuit circuit = new Circuit(gate_table.get_table());
 					FieldVector<Complex> results = circuit.operate(qubit_table.get_qubits());
 					
-					StringBuilder text = new StringBuilder("<html>Simulation results:<table border=\"0\">");
+					StringBuilder text = new StringBuilder("<html>Simulation results:<table cellspacing=\"0\" cellpadding=\"0\">");
 					
 					final int qubits_number = Integer.toBinaryString(results.getDimension() - 1).length();
 					for (int index = 0; index < results.getDimension(); index++) {
@@ -336,7 +336,7 @@ public class GUI {
 							qubits_values.insert(0, '0');
 						
 						text.append("<tr><td>" + Tools.round(current.getReal()) + (current.getImaginary() < 0 ? "" : "+") +
-								Tools.round(current.getImaginary()) + "i |" + qubits_values + "></td><td>" +
+								Tools.round(current.getImaginary()) + "i |" + qubits_values + ">&emsp;&emsp;</td><td>" +
 								current_percentage + "% chance</td></tr>");
 					}
 					
