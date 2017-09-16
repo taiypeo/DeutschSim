@@ -2,7 +2,7 @@
 
 A quantum circuit simulator, written in Java.
 
-![alt bell_state_gif](https://media.giphy.com/media/xT9IgJ4N1H8OJDPWus/giphy.gif)
+![alt bell_state_gif](https://media.giphy.com/media/3ov9jOT7SkcrXTzNew/giphy.gif)
 
 _Bell state simulation demonstration_
 
