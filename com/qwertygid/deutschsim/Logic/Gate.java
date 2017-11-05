@@ -9,162 +9,156 @@ import org.apache.commons.math3.linear.FieldMatrixPreservingVisitor;
 import com.qwertygid.deutschsim.Miscellaneous.Tools;
 
 public class Gate {
-	// Rotation constructor
-	public Gate(final String id, double angle_x, double angle_y, double angle_z, final Tools.AngleType angle_type)
-	{
-		this.id = id;
-		this.IO_ports = 1;
-		
-		if (angle_type == Tools.AngleType.DEGREES) {
-			angle_x = Math.toRadians(angle_x);
-			angle_y = Math.toRadians(angle_y);
-			angle_z = Math.toRadians(angle_z);
-		}
-		
-		Complex[][] data_x_rot = new Complex[][] {
-			{new Complex(Tools.round(Math.cos(angle_x / 2))), new Complex(0.0, Tools.round(-Math.sin(angle_x / 2)))},
-			{new Complex(0.0, Tools.round(-Math.sin(angle_x / 2))), new Complex(Tools.round(Math.cos(angle_x / 2)))}
-		};
-		FieldMatrix<Complex> x_rot = new Array2DRowFieldMatrix<Complex>(data_x_rot);
-		
-		Complex[][] data_y_rot = new Complex[][] {
-			{new Complex(Tools.round(Math.cos(angle_y / 2))), new Complex(Tools.round(-Math.sin(angle_y / 2)))},
-			{new Complex(Tools.round(Math.sin(angle_y / 2))), new Complex(Tools.round(Math.cos(angle_y / 2)))}
-		};
-		FieldMatrix<Complex> y_rot = new Array2DRowFieldMatrix<Complex>(data_y_rot);
-		
-		Complex[][] data_z_rot = new Complex[][] {
-			{new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(-Math.sin(angle_z / 2))), new Complex(0.0)},
-			{new Complex(0.0), new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(Math.sin(angle_z / 2)))}
-		};
-		FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
-		
-		mat = z_rot.multiply(y_rot).multiply(x_rot);
-		
-		if (!valid())
-			throw new RuntimeException(
-					"Matrix is not a valid quantum gate in Gate rotation constructor");
-	}
-	
-	// Phase shift constructor
-	public Gate(final String id, double angle, final Tools.AngleType angle_type) {
-		this.id = id;
-		this.IO_ports = 1;
-		
-		if (angle_type == Tools.AngleType.DEGREES)
-			angle = Math.toRadians(angle);
-		
-		Complex[][] data = new Complex[][] {
-				{new Complex(1), new Complex(0)},
-				{new Complex(0), new Complex(Tools.round(Math.cos(angle)), Tools.round(Math.sin(angle)))}
-		};
-		
-		mat = new Array2DRowFieldMatrix<Complex>(data);
-		
-		if (!valid())
-			throw new RuntimeException(
-					"Matrix is not a valid quantum gate in Gate phase shift constructor");
-	}
-	
-	public Gate(final String id, final Table<Gate> gates) {
-		this(id, new Circuit(gates).evaluate_circuit_matrix());
-	}
-	
-	public Gate(final String id, final FieldMatrix<Complex> mat) {
-		this.id = id;
-		this.IO_ports = (int) (Math.log(mat.getColumnDimension()) / Math.log(2)); // Get base-2 logarithm of mat.getColumnDimension()
-		this.mat = mat;
-		
-		if (!valid())
-			throw new IllegalArgumentException(
-					"Provided matrix is not a valid quantum gate");
-	}
-	
-	public boolean valid() {
-		// Checks if this is a control matrix
-		Complex[][] data = new Complex[][] {
-				{new Complex(Tools.CONTROL_VALUE), new Complex(0)},
-				{new Complex(0), new Complex(1)}
-		};
-		
-		FieldMatrix<Complex> control = new Array2DRowFieldMatrix<Complex>(data);
-		
-		if (mat.equals(control))
-			return true;
-		
-		final boolean is_dimension_power_of_2 = (mat.getColumnDimension() & (mat.getColumnDimension() - 1)) == 0;
-		if (!mat.isSquare() || !is_dimension_power_of_2)
-			return false;
-		
-		// Computes dagger of mat
-		FieldMatrix<Complex> dagger = mat.transpose();
-		dagger.walkInOptimizedOrder(new MatrixConjugator());
-		
-		// Checks if dagger * mat = identity matrix
-		FieldMatrix<Complex> result = mat.multiply(dagger);
-		Complex is_identity = result.walkInOptimizedOrder(new UnitaryChecker()); // 1+0i if true, 0+0i if false
-		
-		return is_identity.equals(new Complex(1));
-	}
-	
-	public String get_id() {
-		return id;
-	}
-	
-	public int get_ports_number() {
-		return IO_ports;
-	}
-	
-	public FieldMatrix<Complex> get_matrix() {
-		return mat;
-	}
-	
-	private final FieldMatrix<Complex> mat;
-	private final String id;
-	private final int IO_ports;
-	
-	private static class MatrixConjugator implements FieldMatrixChangingVisitor<Complex> {
-		@Override
-		public Complex end() {
-			return null;
-		}
+    // Rotation constructor
+    public Gate(final String id, double angle_x, double angle_y, double angle_z, final Tools.AngleType angle_type) {
+        this.id = id;
+        this.IO_ports = 1;
 
-		@Override
-		public void start(int rows, int cols, int start_row, int end_row, int start_col, int end_col) {
-			
-		}
+        if (angle_type == Tools.AngleType.DEGREES) {
+            angle_x = Math.toRadians(angle_x);
+            angle_y = Math.toRadians(angle_y);
+            angle_z = Math.toRadians(angle_z);
+        }
 
-		@Override
-		public Complex visit(int row, int col, Complex value) {
-			return value.conjugate();			
-		}
-	}
-	
-	private static class UnitaryChecker implements FieldMatrixPreservingVisitor<Complex> {
-		public UnitaryChecker() {
-			return_value = new Complex(1);
-		}
-		
-		@Override
-		public Complex end() {
-			return return_value;
-		}
+        Complex[][] data_x_rot = new Complex[][] {
+                { new Complex(Tools.round(Math.cos(angle_x / 2))),
+                        new Complex(0.0, Tools.round(-Math.sin(angle_x / 2))) },
+                { new Complex(0.0, Tools.round(-Math.sin(angle_x / 2))),
+                        new Complex(Tools.round(Math.cos(angle_x / 2))) } };
+        FieldMatrix<Complex> x_rot = new Array2DRowFieldMatrix<Complex>(data_x_rot);
 
-		@Override
-		public void start(int rows, int cols, int start_row, int end_row, int start_col, int end_col) {
-			
-		}
+        Complex[][] data_y_rot = new Complex[][] {
+                { new Complex(Tools.round(Math.cos(angle_y / 2))), new Complex(Tools.round(-Math.sin(angle_y / 2))) },
+                { new Complex(Tools.round(Math.sin(angle_y / 2))), new Complex(Tools.round(Math.cos(angle_y / 2))) } };
+        FieldMatrix<Complex> y_rot = new Array2DRowFieldMatrix<Complex>(data_y_rot);
 
-		@Override
-		public void visit(int row, int col, Complex value) {
-			if (return_value.equals(new Complex(0)))
-				return;
-			
-			int delta = (row == col ? 1 : 0);
-			if (!Tools.equal(value.getReal(), delta))
-				return_value = new Complex(0);
-		}
-		
-		private Complex return_value;
-	}
+        Complex[][] data_z_rot = new Complex[][] {
+                { new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(-Math.sin(angle_z / 2))),
+                        new Complex(0.0) },
+                { new Complex(0.0),
+                        new Complex(Tools.round(Math.cos(angle_z / 2)), Tools.round(Math.sin(angle_z / 2))) } };
+        FieldMatrix<Complex> z_rot = new Array2DRowFieldMatrix<Complex>(data_z_rot);
+
+        mat = z_rot.multiply(y_rot).multiply(x_rot);
+
+        if (!valid())
+            throw new RuntimeException("Matrix is not a valid quantum gate in Gate rotation constructor");
+    }
+
+    // Phase shift constructor
+    public Gate(final String id, double angle, final Tools.AngleType angle_type) {
+        this.id = id;
+        this.IO_ports = 1;
+
+        if (angle_type == Tools.AngleType.DEGREES)
+            angle = Math.toRadians(angle);
+
+        Complex[][] data = new Complex[][] { { new Complex(1), new Complex(0) },
+                { new Complex(0), new Complex(Tools.round(Math.cos(angle)), Tools.round(Math.sin(angle))) } };
+
+        mat = new Array2DRowFieldMatrix<Complex>(data);
+
+        if (!valid())
+            throw new RuntimeException("Matrix is not a valid quantum gate in Gate phase shift constructor");
+    }
+
+    public Gate(final String id, final Table<Gate> gates) {
+        this(id, new Circuit(gates).evaluate_circuit_matrix());
+    }
+
+    public Gate(final String id, final FieldMatrix<Complex> mat) {
+        this.id = id;
+        this.IO_ports = (int) (Math.log(mat.getColumnDimension()) / Math.log(2)); // Get base-2 logarithm of
+                                                                                  // mat.getColumnDimension()
+        this.mat = mat;
+
+        if (!valid())
+            throw new IllegalArgumentException("Provided matrix is not a valid quantum gate");
+    }
+
+    public boolean valid() {
+        // Checks if this is a control matrix
+        Complex[][] data = new Complex[][] { { new Complex(Tools.CONTROL_VALUE), new Complex(0) },
+                { new Complex(0), new Complex(1) } };
+
+        FieldMatrix<Complex> control = new Array2DRowFieldMatrix<Complex>(data);
+
+        if (mat.equals(control))
+            return true;
+
+        final boolean is_dimension_power_of_2 = (mat.getColumnDimension() & (mat.getColumnDimension() - 1)) == 0;
+        if (!mat.isSquare() || !is_dimension_power_of_2)
+            return false;
+
+        // Computes dagger of mat
+        FieldMatrix<Complex> dagger = mat.transpose();
+        dagger.walkInOptimizedOrder(new MatrixConjugator());
+
+        // Checks if dagger * mat = identity matrix
+        FieldMatrix<Complex> result = mat.multiply(dagger);
+        Complex is_identity = result.walkInOptimizedOrder(new UnitaryChecker()); // 1+0i if true, 0+0i if false
+
+        return is_identity.equals(new Complex(1));
+    }
+
+    public String get_id() {
+        return id;
+    }
+
+    public int get_ports_number() {
+        return IO_ports;
+    }
+
+    public FieldMatrix<Complex> get_matrix() {
+        return mat;
+    }
+
+    private final FieldMatrix<Complex> mat;
+    private final String id;
+    private final int IO_ports;
+
+    private static class MatrixConjugator implements FieldMatrixChangingVisitor<Complex> {
+        @Override
+        public Complex end() {
+            return null;
+        }
+
+        @Override
+        public void start(int rows, int cols, int start_row, int end_row, int start_col, int end_col) {
+
+        }
+
+        @Override
+        public Complex visit(int row, int col, Complex value) {
+            return value.conjugate();
+        }
+    }
+
+    private static class UnitaryChecker implements FieldMatrixPreservingVisitor<Complex> {
+        public UnitaryChecker() {
+            return_value = new Complex(1);
+        }
+
+        @Override
+        public Complex end() {
+            return return_value;
+        }
+
+        @Override
+        public void start(int rows, int cols, int start_row, int end_row, int start_col, int end_col) {
+
+        }
+
+        @Override
+        public void visit(int row, int col, Complex value) {
+            if (return_value.equals(new Complex(0)))
+                return;
+
+            int delta = (row == col ? 1 : 0);
+            if (!Tools.equal(value.getReal(), delta))
+                return_value = new Complex(0);
+        }
+
+        private Complex return_value;
+    }
 }
