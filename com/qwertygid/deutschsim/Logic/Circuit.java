@@ -115,7 +115,7 @@ public class Circuit {
 
             for (int row = 0; row < gates.get_row_count(); row++) {
                 Gate current = gates.get_element(row, col);
-                if (current == null || current.get_id() == Tools.CONTROL_ID)
+                if (current == null || current.get_id().equals(Tools.CONTROL_ID))
                     continue;
 
                 ArrayList<Integer> gate_inputs = new ArrayList<Integer>(controls);
